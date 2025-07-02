@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictive Purchase Outcome Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        html {
+            scroll-behavior: smooth; /* Ensures smooth scrolling for anchor links */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f9fafb; /* bg-gray-50 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Custom animations for enhanced UI/UX */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bounceIn {
+            0%, 20%, 40%, 60%, 80%, 100% {
+                transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+            }
+            0% { opacity: 0; transform: scale3d(.3, .3, .3); }
+            20% { transform: scale3d(1.1, 1.1, 1.1); }
+            40% { transform: scale3d(.9, .9, .9); }
+            60% { opacity: 1; transform: scale3d(1.03, 1.03, 1.03); }
+            80% { transform: scale3d(.97, .97, .97); }
+            100% { opacity: 1; transform: scale3d(1, 1, 1); }
+        }
+        .animate-fade-in-down { animation: fadeInDown 1s ease-out forwards; }
+        .animate-fade-in-up { animation: fadeInUp 1s ease-out forwards; }
+        .animate-bounce-in { animation: bounceIn 1s ease-out forwards; }
+
+        /* Animation for new table rows */
+        @keyframes slideInFromBottom {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-slide-in-from-bottom {
+            animation: slideInFromBottom 0.5s ease-out forwards;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-left-color: #ffffff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Button styling - consistent with e-commerce site */
+        .button-primary {
+            background-color: #4f46e5; /* indigo-600 */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+        .button-primary:hover {
+            background-color: #4338ca; /* indigo-700 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.08);
+        }
+        .button-primary:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        /* Disable state for primary button */
+        .button-primary:disabled {
+            background-color: #9fa6b2; /* gray-400 */
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .button-secondary {
+            border: 1px solid #d1d5db; /* gray-300 */
+            background-color: #ffffff; /* bg-white */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            color: #4b5563; /* gray-700 */
+        }
+        .button-secondary:hover {
+            background-color: #f3f4f6; /* gray-100 */
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+        }
+        .button-secondary:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        /* Disable state for secondary button */
+        .button-secondary:disabled {
+            background-color: #e5e7eb; /* gray-200 */
+            color: #9ca3af; /* gray-400 */
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Message area styling - consistent with e-commerce site */
+        .message-box {
+            padding: 10px 15px;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(-10px);
+            animation: fadeSlideIn 0.5s forwards;
+            display: flex; /* Added for icon alignment */
+            align-items: center; /* Added for icon alignment */
+            justify-content: center; /* Center content horizontally */
+        }
+        .message-box.success {
+            background-color: #d1fae5; /* green-100 */
+            color: #065f46; /* green-800 */
+            border: 1px solid #34d399; /* green-400 */
+        }
+        .message-box.error {
+            background-color: #fee2e2; /* red-100 */
+            color: #991b1b; /* red-800 */
+            border: 1px solid #f87171; /* red-400 */
+        }
+        .message-box.info {
+            background-color: #e0f2fe; /* blue-100 */
+            color: #1e40af; /* blue-800 */
+            border: 1px solid #60a5fa; /* blue-400 */
+        }
+        .message-box.warning { /* Added for exchange status */
+            background-color: #fffbe6; /* yellow-100 */
+            color: #92400e; /* yellow-800 */
+            border: 1px solid #fcd34d; /* yellow-400 */
+        }
+        .message-box svg {
+            margin-right: 0.5rem; /* Space between icon and text */
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scroll to Top Button */
+        .scroll-to-top-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: #4f46e5; /* indigo-600 */
+            color: white;
+            padding: 0.75rem;
+            border-radius: 9999px; /* fully rounded */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            opacity: 0; /* Hidden by default */
+            pointer-events: none; /* Prevents interaction when hidden */
+            z-index: 1000; /* Ensure it's on top */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .scroll-to-top-btn.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        .scroll-to-top-btn:hover {
+            background-color: #4338ca; /* indigo-700 */
+            transform: translateY(-3px);
+        }
+        .scroll-to-top-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Table styling */
+        .styled-table {
+            width: 100%;
+            border-collapse: separate; /* Allows border-radius on cells */
+            border-spacing: 0; /* Remove default spacing */
+            overflow: hidden; /* Ensures rounded corners are visible */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .styled-table thead th {
+            background-color: #4f46e5; /* indigo-600 */
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem; /* text-sm */
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer; /* Indicate sortable columns */
+            transition: background-color 0.2s ease-in-out;
+        }
+        .styled-table thead th:hover {
+            background-color: #4338ca; /* indigo-700 */
+        }
+        .styled-table thead th.sorted-asc::after {
+            content: " ▲";
+        }
+        .styled-table thead th.sorted-desc::after {
+            content: " ▼";
+        }
+
+        .styled-table tbody tr {
+            background-color: #ffffff;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .styled-table tbody tr:nth-child(even) {
+            background-color: #f3f4f6; /* gray-100 */
+        }
+        .styled-table tbody tr:hover {
+            background-color: #e0e7ff; /* indigo-100 */
+        }
+        .styled-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb; /* gray-200 */
+            color: #374151; /* gray-700 */
+            font-size: 0.9375rem; /* ~15px */
+        }
+        .styled-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .styled-table thead th:first-child { border-top-left-radius: 0.5rem; }
+        .styled-table thead th:last-child { border-top-right-radius: 0.5rem; }
+        .styled-table tbody tr:last-child td:first-child { border-bottom-left-radius: 0.5rem; }
+        .styled-table tbody tr:last-child td:last-child { border-bottom-right-radius: 0.5rem; }
+
+        /* Specific styling for outcome cells */
+        .outcome-keep { color: #10b981; font-weight: 600; } /* green-500 */
+        .outcome-exchange { color: #f59e0b; font-weight: 600; } /* yellow-500 */
+        .outcome-refund { color: #ef4444; font-weight: 600; } /* red-500 */
+
+        /* Responsive table behavior */
+        @media (max-width: 768px) {
+            .styled-table thead {
+                display: none; /* Hide table headers on small screens */
+            }
+            .styled-table, .styled-table tbody, .styled-table tr, .styled-table td {
+                display: block; /* Make table elements behave like block elements */
+                width: 100%;
+            }
+            .styled-table tr {
+                margin-bottom: 1rem;
+                border: 1px solid #e5e7eb;
+                border-radius: 0.5rem;
+                overflow: hidden;
+                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            }
+            .styled-table td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+                border-bottom: 1px dashed #e5e7eb;
+            }
+            .styled-table td:last-child {
+                border-bottom: none;
+            }
+            .styled-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 50%;
+                padding-left: 1rem;
+                font-weight: 600;
+                text-align: left;
+                color: #4b5563;
+            }
+        }
+
+        /* Tooltip styles */
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position above the element */
+            left: 50%;
+            margin-left: -100px; /* Center the tooltip */
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.875rem;
+        }
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%; /* At the bottom of the tooltip */
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Pulse animation for button */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+            }
+        }
+        .animate-pulse-on-hover:hover {
+            animation: pulse 1s infinite;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* Dark semi-transparent background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Above all other content */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            padding: 2.5rem; /* More padding for a premium feel */
+            border-radius: 1rem; /* More rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 0 4px 10px rgba(0, 0, 0, 0.15); /* Stronger shadow */
+            max-width: 500px;
+            width: 90%;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        .modal-overlay.show .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .modal-header {
+            font-size: 1.75rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            color: #1f2937; /* gray-900 */
+            margin-bottom: 1.5rem; /* mb-6 */
+            text-align: center;
+        }
+        .modal-label {
+            display: block;
+            font-size: 1rem; /* text-base */
+            font-weight: 600; /* font-semibold */
+            color: #374151; /* gray-700 */
+            margin-bottom: 0.5rem;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 0.75rem; /* py-3 */
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .modal-input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+            outline: none;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .modal-message {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .modal-message.success { color: #065f46; }
+        .modal-message.error { color: #991b1b; }
+
+        /* Styles for product suggestions dropdown (generalized for re-use) */
+        .product-suggestions {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #d1d5db; /* gray-300 */
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            width: 100%; /* Match width of the input */
+            margin-top: 0.25rem; /* Space between input and suggestions */
+        }
+
+        .product-suggestions div {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .product-suggestions div:hover {
+            background-color: #e0e7ff; /* indigo-100 */
+        }
+
+        .product-input-container {
+            position: relative; /* Needed for absolute positioning of suggestions */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8 flex flex-col min-h-screen">
+    <section class="relative bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-20 lg:py-24 overflow-hidden rounded-b-lg shadow-lg mx-auto w-full mb-12">
+        <div class="container mx-auto text-center px-4">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-down">
+                Predictive Purchase Outcome Simulator
+            </h1>
+            <p class="text-lg sm:text-xl mb-8 opacity-90 animate-fade-in-up">
+                Understand and predict customer purchase outcomes (Keep, Exchange, Refund).
+            </p>
+            <a href="#prediction-input-section" class="inline-block bg-white text-indigo-700 hover:bg-gray-100 px-8 py-3 rounded-full text-lg font-semibold shadow-lg transition-all duration-300 transform hover:scale-105 animate-bounce-in smooth-scroll relative z-10 animate-pulse-on-hover">
+                Start Simulating
+            </a>
+        </div>
+        <div class="absolute inset-0 z-0 opacity-20">
+            <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="20" cy="20" r="15" fill="url(#gradient1)" opacity="0.6">
+                    <animate attributeName="cx" values="20;80;20" dur="10s" repeatCount="indefinite" />
+                    <animate attributeName="cy" values="20;80;20" dur="12s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="80" cy="80" r="20" fill="url(#gradient2)" opacity="0.5">
+                    <animate attributeName="cx" values="80;20;80" dur="11s" repeatCount="indefinite" />
+                    <animate attributeName="cy" values="80;20;80" dur="13s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="50" cy="50" r="10" fill="url(#gradient3)" opacity="0.7">
+                    <animate attributeName="cx" values="50;10;90;50" dur="15s" repeatCount="indefinite" />
+                    <animate attributeName="cy" values="50;90;10;50" dur="14s" repeatCount="indefinite" />
+                </circle>
+                <defs>
+                    <radialGradient id="gradient1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(20 20) scale(30)">
+                        <stop stop-color="#fff" stop-opacity="0.8"/>
+                        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="gradient2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(80 80) scale(40)">
+                        <stop stop-color="#fff" stop-opacity="0.7"/>
+                        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="gradient3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50 50) scale(20)">
+                        <stop stop-color="#fff" stop-opacity="0.9"/>
+                        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+                    </radialGradient>
+                </defs>
+            </svg>
+        </div>
+    </section>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <section id="prediction-input-section" class="bg-white p-6 sm:p-8 rounded-xl shadow-md mb-12 max-w-4xl mx-auto animate-fade-in-up">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">Simulate Purchase & Predict Outcome</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="product-input-container">
+                    <label for="productNameInput" class="block text-base font-semibold text-gray-700 mb-2">Product Name</label>
+                    <input type="text" id="productNameInput"
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-base transition duration-200 ease-in-out"
+                           placeholder="Type or click to select a product">
+                    <div id="productSuggestions" class="product-suggestions hidden"></div>
+                </div>
+                <div>
+                    <label for="purchaseAmount" class="block text-base font-semibold text-gray-700 mb-2">
+                        Purchase Amount ($)
+                        <span class="tooltip-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline-block ml-1 text-gray-400">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                            <span class="tooltip-text">Enter the total amount of the customer's purchase.</span>
+                        </span>
+                    </label>
+                    <input type="number" id="purchaseAmount" value="50.00" min="1.00" step="0.01"
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-base transition duration-200 ease-in-out">
+                </div>
+                <div class="product-input-container">
+                    <label for="shoppingChannelInput" class="block text-base font-semibold text-gray-700 mb-2">Shopping Channel</label>
+                    <input type="text" id="shoppingChannelInput"
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-base transition duration-200 ease-in-out"
+                           placeholder="Type or click to select a channel">
+                    <div id="shoppingChannelSuggestions" class="product-suggestions hidden"></div>
+                </div>
+                <div class="product-input-container">
+                    <label for="simulateActualStatusInput" class="block text-base font-semibold text-gray-700 mb-2">
+                        Simulate Actual Status
+                        <span class="tooltip-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline-block ml-1 text-gray-400">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                            <span class="tooltip-text">For demo purposes, select the actual outcome to compare with the model's prediction.</span>
+                        </span>
+                    </label>
+                    <input type="text" id="simulateActualStatusInput"
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-base transition duration-200 ease-in-out"
+                           placeholder="Type or click to select status">
+                    <div id="simulateActualStatusSuggestions" class="product-suggestions hidden"></div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center gap-5 mb-6">
+                <button id="predictOutcomeBtn"
+                        class="button-primary flex items-center justify-center px-8 py-3 text-lg font-medium rounded-lg text-white focus:outline-none focus:ring-4 focus:ring-indigo-300">
+                    <span id="predictButtonText">Predict Outcome</span>
+                    <div id="predictLoadingSpinner" class="spinner ml-3 hidden"></div>
+                </button>
+                <button id="clearFormBtn"
+                        class="button-secondary px-8 py-3 text-lg font-medium rounded-lg focus:outline-none focus:ring-4 focus:ring-indigo-200">
+                    Clear Form
+                </button>
+                <button id="bulkPredictBtn"
+                        class="button-secondary px-8 py-3 text-lg font-medium rounded-lg focus:outline-none focus:ring-4 focus:ring-indigo-200">
+                    Bulk Predict
+                </button>
+            </div>
+
+            <div id="predictionResultArea" class="text-center text-lg font-semibold mb-4 min-h-[30px]"></div>
+
+            <div class="flex justify-center">
+                <button id="addToHistoryBtn"
+                        class="button-secondary px-6 py-2 text-base font-medium rounded-lg focus:outline-none focus:ring-4 focus:ring-indigo-200 hidden">
+                    Add to History
+                </button>
+            </div>
+        </section>
+
+        <section id="history-dashboard" class="bg-white p-6 sm:p-8 rounded-xl shadow-md max-w-full mx-auto overflow-x-auto animate-fade-in-up">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">Purchase History & Model Performance</h2>
+
+            <div class="mb-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <label for="sortColumn" class="text-gray-700 font-medium">Sort by:</label>
+                    <select id="sortColumn" class="px-3 py-1 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                        <option value="time">Time</option>
+                        <option value="productName">Product</option>
+                        <option value="purchaseAmount">Amount</option>
+                        <option value="actualStatus">Actual Outcome</option>
+                        <option value="predictedOutcome">Predicted Outcome</option>
+                    </select>
+                    <button id="sortOrderBtn" class="p-1 rounded-md hover:bg-gray-200 transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-gray-600">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v9.75m0 0-3-3m3 3 3-3" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex gap-4">
+                    <button id="clearFiltersBtn"
+                            class="button-secondary px-6 py-2 text-base font-medium rounded-lg focus:outline-none focus:ring-4 focus:ring-indigo-200">
+                        Clear Filters
+                    </button>
+                    <button id="clearHistoryBtn"
+                            class="button-secondary px-6 py-2 text-base font-medium rounded-lg focus:outline-none focus:ring-4 focus:ring-indigo-200">
+                        Clear History
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-lg">
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th data-column="customerId">Customer ID</th>
+                            <th data-column="time" class="sorted-desc">Time</th>
+                            <th data-column="productName">Product</th>
+                            <th data-column="purchaseAmount">Amount</th>
+                            <th data-column="shoppingChannel">Channel</th>
+                            <th data-column="actualStatus">Actual Outcome</th>
+                            <th data-column="predictedOutcome">Predicted Outcome</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr><td colspan="7" class="text-center text-gray-500 py-4">No purchases yet. Simulate one above!</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="chart-section" class="bg-white p-6 sm:p-8 rounded-xl shadow-md max-w-full mx-auto mt-8 hidden animate-fade-in-up">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">Outcome Comparison Chart</h2>
+            <div class="relative h-96">
+                <canvas id="outcomeChart"></canvas>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-900 text-gray-300 py-8 px-4 mt-12">
+        <div class="container mx-auto text-center">
+            <h3 class="text-xl font-bold mb-2 text-white">Predictive Model Simulator</h3>
+            <p class="text-gray-400 text-sm">&copy; 2024 YourCompany. All rights reserved.</p>
+            <div class="flex justify-center space-x-4 mt-4">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Privacy Policy</a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <button id="scrollToTopBtn" class="scroll-to-top-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
+        </svg>
+    </button>
+
+    <button id="scrollToTopBtn" class="scroll-to-top-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
+        </svg>
+    </button>
+
+    <!-- Bulk Predict Modal -->
+    <div id="bulkPredictModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="modal-header">Bulk Prediction Entries</h2>
+            <div class="mb-6">
+                <label for="numBulkEntries" class="modal-label">Number of entries to generate:</label>
+                <input type="number" id="numBulkEntries" min="1" value="10"
+                       class="modal-input">
+            </div>
+            <div id="bulkPredictMessageArea" class="modal-message"></div>
+            <div class="modal-buttons">
+                <button id="generateBulkBtn" class="button-primary flex items-center px-6 py-3 text-lg font-medium rounded-lg text-white focus:outline-none focus:ring-4 focus:ring-indigo-300">
+                    <span id="generateBulkButtonText">Generate & Add to History</span>
+                    <div id="generateBulkLoadingSpinner" class="spinner ml-3 hidden"></div>
+                </button>
+                <button id="closeBulkModalBtn" class="button-secondary px-6 py-3 text-lg font-medium rounded-lg focus:outline-none focus:ring-4 focus:ring-indigo-200">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Element References ---
+        const productNameInput = document.getElementById('productNameInput');
+        const productSuggestionsDiv = document.getElementById('productSuggestions');
+        const purchaseAmountInput = document.getElementById('purchaseAmount');
+        // Updated references for shopping channel and simulate actual status
+        const shoppingChannelInput = document.getElementById('shoppingChannelInput');
+        const shoppingChannelSuggestionsDiv = document.getElementById('shoppingChannelSuggestions');
+        const simulateActualStatusInput = document.getElementById('simulateActualStatusInput');
+        const simulateActualStatusSuggestionsDiv = document.getElementById('simulateActualStatusSuggestions');
+
+        const predictOutcomeBtn = document.getElementById('predictOutcomeBtn');
+        const clearFormBtn = document.getElementById('clearFormBtn');
+        const predictionResultArea = document.getElementById('predictionResultArea');
+        const predictButtonText = document.getElementById('predictButtonText');
+        const predictLoadingSpinner = document.getElementById('predictLoadingSpinner');
+        const addToHistoryBtn = document.getElementById('addToHistoryBtn');
+        const historyTableBody = document.getElementById('historyTableBody');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        const startSimulatingBtn = document.querySelector('.smooth-scroll');
+        const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+        const sortColumnSelect = document.getElementById('sortColumn');
+        const sortOrderBtn = document.getElementById('sortOrderBtn');
+        const tableHeaders = document.querySelectorAll('.styled-table thead th[data-column]');
+        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+
+        // New Bulk Predict elements
+        const bulkPredictBtn = document.getElementById('bulkPredictBtn');
+        const bulkPredictModal = document.getElementById('bulkPredictModal');
+        const numBulkEntriesInput = document.getElementById('numBulkEntries');
+        const generateBulkBtn = document.getElementById('generateBulkBtn');
+        const closeBulkModalBtn = document.getElementById('closeBulkModalBtn');
+        const bulkPredictMessageArea = document.getElementById('bulkPredictMessageArea');
+        const generateBulkButtonText = document.getElementById('generateBulkButtonText');
+        const generateBulkLoadingSpinner = document.getElementById('generateBulkLoadingSpinner');
+
+        // --- Chart.js related elements ---
+        const outcomeChartCanvas = document.getElementById('outcomeChart');
+        let outcomeChartInstance = null; // To hold the Chart.js instance
+
+        // --- Dummy Data (replace with actual data from your model's preprocessing if available) ---
+        const dummyProducts = [
+            'Laptop', 'Wireless Mouse', 'Monitor', 'Keyboard', 'Webcam',
+            'Headphones', 'Smartwatch', 'External SSD', 'Router', 'Gaming Chair',
+            'Bluetooth Speaker', 'Fitness Tracker', 'Drone', 'VR Headset', 'Smart TV',
+            'Digital Camera', 'Tablet Pen', 'Drawing Tablet', 'Microphone', 'Webcam Cover',
+            'Smart Light Bulb', 'Robot Vacuum', 'Security Camera', 'Doorbell Camera', 'Smart Lock',
+            'Coffee Maker', 'Air Fryer', 'Blender', 'Toaster', 'Electric Kettle',
+            'Running Shoes', 'Yoga Mat', 'Dumbbells', 'Resistance Bands', 'Jump Rope'
+        ];
+        const dummyChannels = ['Online Store', 'Mobile App', 'Physical Store', 'Social Media'];
+        const possibleOutcomes = ['Keep', 'Exchange', 'Refund']; // Model's potential predictions
+
+        // --- Global State for History ---
+        let purchaseHistory = [];
+        let currentSortColumn = 'time';
+        let currentSortOrder = 'desc'; // 'asc' or 'desc'
+
+        // --- Helper Functions ---
+
+        /**
+         * Displays a message in the designated area with a specific styling and icon.
+         * @param {HTMLElement} targetArea - The DOM element where the message should be displayed.
+         * @param {string} message - The text message to display.
+         * @param {'success'|'error'|'info'|'warning'} type - The type of message for styling.
+         */
+        function showMessage(targetArea, message, type = 'info') {
+            // Clear only the targetArea, not predictionResultArea always
+            targetArea.innerHTML = '';
+            const msgDiv = document.createElement('div');
+            // Add icon based on message type
+            let iconSvg = '';
+            if (type === 'success') {
+                iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 inline-block mr-2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0118 0Z" /></svg>`;
+            } else if (type === 'error') {
+                iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 inline-block mr-2"><path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0118 0Z" /></svg>`;
+            } else if (type === 'warning') {
+                iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 inline-block mr-2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.174 3.35 1.94 3.35h14.72c1.766 0 2.806-1.85 1.94-3.35L12 2.25 2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>`;
+            } else { // info
+                iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 inline-block mr-2"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0118 0Z" /></svg>`;
+            }
+
+            msgDiv.innerHTML = `${iconSvg}<span>${message}</span>`;
+            msgDiv.className = `message-box ${type}`; // Removed flex-center from here, already handled by parent container
+            targetArea.appendChild(msgDiv);
+
+            // Auto-hide message after 5 seconds
+            setTimeout(() => {
+                if (targetArea.contains(msgDiv)) {
+                    msgDiv.style.opacity = '0';
+                    msgDiv.style.transform = 'translateY(-10px)';
+                    msgDiv.addEventListener('transitionend', () => msgDiv.remove(), { once: true });
+                }
+            }, 5000);
+        }
+
+        /**
+         * Populates a select dropdown with options from a given array.
+         * This function is now deprecated for the new auto-complete fields but remains for other select elements.
+         * @param {HTMLSelectElement} selectElement - The select element to populate.
+         * @param {string[]} optionsArray - An array of strings for the option values and text.
+         */
+        function populateSelect(selectElement, optionsArray) {
+            selectElement.innerHTML = ''; // Clear existing options
+            optionsArray.forEach(optionText => {
+                const option = document.createElement('option');
+                option.value = optionText;
+                option.textContent = optionText;
+                selectElement.appendChild(option);
+            });
+        }
+
+        /**
+         * Simulates a prediction from the model based on input data.
+         * In a real application, this would involve an API call to your backend model.
+         * @param {object} inputData - The data to simulate prediction for.
+         * @returns {Promise<string>} A promise that resolves with the predicted outcome.
+         */
+        async function simulatePrediction(inputData) {
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 150)); // Shorter delay for bulk
+
+            // Dummy prediction logic:
+            const actualStatus = inputData.simulateActualStatus;
+            let predictedOutcome;
+
+            const randomFactor = Math.random();
+
+            if (randomFactor < 0.75) { // 75% chance to predict the same as actual for "realism"
+                predictedOutcome = actualStatus;
+            } else { // 25% chance to predict something different
+                const otherOutcomes = possibleOutcomes.filter(outcome => outcome !== actualStatus);
+                predictedOutcome = otherOutcomes[Math.floor(Math.random() * otherOutcomes.length)];
+            }
+
+            return predictedOutcome;
+        }
+
+        /**
+         * Updates the icon of the sort order button based on currentSortOrder.
+         */
+        function updateSortOrderButtonIcon() {
+            const iconPath = sortOrderBtn.querySelector('path');
+            // Check for potential null before setting attribute
+            if (iconPath) {
+                if (currentSortOrder === 'asc') {
+                    iconPath.setAttribute('d', 'M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v9.75m0 0-3-3m3 3 3-3'); // Up arrow
+                } else {
+                    iconPath.setAttribute('d', 'M3 19.5h14.25M3 15h9.75M3 10.5h9.75m4.5-4.5v9.75m0 0-3-3m3 3 3-3'); // Down arrow
+                }
+            }
+        }
+
+        /**
+         * Renders the purchase history table based on the current purchaseHistory array.
+         */
+        function renderPurchaseHistory() {
+            historyTableBody.innerHTML = ''; // Clear existing rows
+
+            if (purchaseHistory.length === 0) {
+                historyTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500 py-4">No purchases yet. Simulate one above!</td></tr>';
+                // Hide chart section if no history
+                document.getElementById('chart-section').classList.add('hidden');
+                if (outcomeChartInstance) {
+                    outcomeChartInstance.destroy();
+                    outcomeChartInstance = null;
+                }
+                return;
+            }
+
+            // Show chart section if there is history
+            document.getElementById('chart-section').classList.remove('hidden');
+
+
+            // Sort the history before rendering
+            const sortedHistory = [...purchaseHistory].sort((a, b) => {
+                let valA = a[currentSortColumn];
+                let valB = b[currentSortColumn];
+
+                if (currentSortColumn === 'time') {
+                    valA = new Date(valA);
+                    valB = new Date(valB);
+                } else if (currentSortColumn === 'purchaseAmount') {
+                    valA = parseFloat(valA);
+                    valB = parseFloat(valB);
+                }
+
+                if (valA < valB) return currentSortOrder === 'asc' ? -1 : 1;
+                if (valA > valB) return currentSortOrder === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            sortedHistory.forEach(record => {
+                const newRow = historyTableBody.insertRow();
+                newRow.classList.add('animate-slide-in-from-bottom'); // Add animation class
+
+                newRow.innerHTML = `
+                    <td data-label="Customer ID">${record.customerId}</td>
+                    <td data-label="Time">${record.purchaseTime}</td>
+                    <td data-label="Product">${record.productName}</td>
+                    <td data-label="Amount">$${record.purchaseAmount.toFixed(2)}</td>
+                    <td data-label="Channel">${record.shoppingChannel}</td>
+                    <td data-label="Actual Outcome" class="outcome-${record.actualStatus.toLowerCase()}">${record.actualStatus}</td>
+                    <td data-label="Predicted Outcome" class="outcome-${record.predictedOutcome.toLowerCase()}">${record.predictedOutcome}</td>
+                `;
+            });
+
+            // Update sort icons on headers
+            tableHeaders.forEach(header => {
+                header.classList.remove('sorted-asc', 'sorted-desc');
+                if (header.dataset.column === currentSortColumn) {
+                    header.classList.add(`sorted-${currentSortOrder}`);
+                }
+            });
+
+            // Call chart update after table is rendered
+            updateOutcomeChart();
+        }
+
+
+        /**
+         * Updates and renders the Chart.js graph.
+         */
+        function updateOutcomeChart() {
+            const actualCounts = { 'Keep': 0, 'Exchange': 0, 'Refund': 0 };
+            const predictedCounts = { 'Keep': 0, 'Exchange': 0, 'Refund': 0 };
+
+            purchaseHistory.forEach(record => {
+                actualCounts[record.actualStatus]++;
+                predictedCounts[record.predictedOutcome]++;
+            });
+
+            const labels = ['Keep', 'Exchange', 'Refund'];
+            const data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Actual Outcomes',
+                        data: [actualCounts['Keep'], actualCounts['Exchange'], actualCounts['Refund']],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], // Green, Yellow, Red
+                        borderColor: ['#065f46', '#92400e', '#991b1b'],
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Predicted Outcomes',
+                        data: [predictedCounts['Keep'], predictedCounts['Exchange'], predictedCounts['Refund']],
+                        backgroundColor: ['rgba(16, 185, 129, 0.5)', 'rgba(245, 158, 11, 0.5)', 'rgba(239, 68, 68, 0.5)'],
+                        borderColor: ['#065f46', '#92400e', '#991b1b'],
+                        borderWidth: 1
+                    }
+                ]
+            };
+
+            const config = {
+                type: 'bar',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Actual vs. Predicted Purchase Outcomes',
+                            font: {
+                                size: 18,
+                                weight: 'bold',
+                                family: 'Inter, sans-serif'
+                            },
+                            color: '#1f2937'
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    family: 'Inter, sans-serif'
+                                },
+                                color: '#374151'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Inter, sans-serif'
+                                },
+                                color: '#4b5563'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                font: {
+                                    family: 'Inter, sans-serif'
+                                },
+                                color: '#4b5563'
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            };
+
+            const ctx = outcomeChartCanvas.getContext('2d');
+
+            if (outcomeChartInstance) {
+                outcomeChartInstance.destroy(); // Destroy existing chart before creating a new one
+            }
+            outcomeChartInstance = new Chart(ctx, config);
+        }
+
+
+        /**
+         * Clears all input fields and prediction results.
+         */
+        function clearForm() {
+            productNameInput.value = ''; // Clear product input
+            productSuggestionsDiv.innerHTML = '';
+            productSuggestionsDiv.classList.add('hidden');
+
+            purchaseAmountInput.value = '50.00';
+
+            shoppingChannelInput.value = ''; // Clear shopping channel input
+            shoppingChannelSuggestionsDiv.innerHTML = '';
+            shoppingChannelSuggestionsDiv.classList.add('hidden');
+
+            simulateActualStatusInput.value = ''; // Clear simulate status input
+            simulateActualStatusSuggestionsDiv.innerHTML = '';
+            simulateActualStatusSuggestionsDiv.classList.add('hidden');
+
+            predictionResultArea.innerHTML = '';
+            addToHistoryBtn.classList.add('hidden');
+        }
+
+        /**
+         * Clears all entries from the purchase history table.
+         */
+        function clearHistory() {
+            purchaseHistory = [];
+            renderPurchaseHistory(); // Re-render to show "No purchases yet" and clear chart
+            showMessage(predictionResultArea, 'Purchase history cleared.', 'info');
+        }
+
+        /**
+         * Sets up auto-complete behavior for an input field.
+         * @param {HTMLInputElement} inputElement The input field.
+         * @param {HTMLElement} suggestionsDiv The div to display suggestions.
+         * @param {string[]} dataArray The array of possible suggestions.
+         */
+        function setupAutoComplete(inputElement, suggestionsDiv, dataArray) {
+            // Function to render suggestions for a given input/suggestions pair
+            const renderAutoCompleteSuggestions = (filteredItems) => {
+                suggestionsDiv.innerHTML = ''; // Clear existing suggestions
+                if (filteredItems.length > 0) {
+                    filteredItems.forEach(item => {
+                        const suggestionItem = document.createElement('div');
+                        suggestionItem.textContent = item;
+                        suggestionItem.addEventListener('click', () => {
+                            inputElement.value = item;
+                            suggestionsDiv.classList.add('hidden'); // Hide suggestions after selection
+                        });
+                        suggestionsDiv.appendChild(suggestionItem);
+                    });
+                    suggestionsDiv.classList.remove('hidden'); // Show suggestions
+                } else {
+                    suggestionsDiv.classList.add('hidden'); // Hide if no matches
+                }
+            };
+
+            // Handle input for auto-complete (suggest as you type)
+            inputElement.addEventListener('input', () => {
+                const searchTerm = inputElement.value.toLowerCase();
+                if (searchTerm.length > 0) {
+                    const filteredItems = dataArray.filter(item =>
+                        item.toLowerCase().includes(searchTerm)
+                    );
+                    renderAutoCompleteSuggestions(filteredItems);
+                } else {
+                    suggestionsDiv.classList.add('hidden'); // Hide suggestions if input is cleared
+                }
+            });
+
+            // Handle focus on auto-complete input (show all options if empty, like a dropdown)
+            inputElement.addEventListener('focus', () => {
+                if (inputElement.value.length === 0) {
+                    renderAutoCompleteSuggestions(dataArray); // Show all options when focused and empty
+                }
+            });
+
+            // Hide suggestions when clicking outside the input and suggestions div
+            document.addEventListener('click', (event) => {
+                if (!inputElement.contains(event.target) && !suggestionsDiv.contains(event.target)) {
+                    suggestionsDiv.classList.add('hidden');
+                }
+            });
+        }
+
+
+        // --- Event Listeners ---
+
+        predictOutcomeBtn.addEventListener('click', async () => {
+            const productName = productNameInput.value; // Get value from input field
+            const purchaseAmount = parseFloat(purchaseAmountInput.value);
+            const shoppingChannel = shoppingChannelInput.value; // Get value from input field
+            const simulateActualStatus = simulateActualStatusInput.value; // Get value from input field
+
+            if (productName.trim() === '') {
+                showMessage(predictionResultArea, 'Please enter a product name.', 'error');
+                return;
+            }
+
+            if (!dummyProducts.includes(productName)) {
+                showMessage(predictionResultArea, 'Please select a product from the suggestions or enter a valid product name.', 'error');
+                return;
+            }
+
+            if (shoppingChannel.trim() === '' || !dummyChannels.includes(shoppingChannel)) {
+                showMessage(predictionResultArea, 'Please select a valid shopping channel from the suggestions.', 'error');
+                return;
+            }
+
+            if (simulateActualStatus.trim() === '' || !possibleOutcomes.includes(simulateActualStatus)) {
+                showMessage(predictionResultArea, 'Please select a valid actual status from the suggestions.', 'error');
+                return;
+            }
+
+            if (isNaN(purchaseAmount) || purchaseAmount <= 0) {
+                showMessage(predictionResultArea, 'Please enter a valid purchase amount.', 'error');
+                return;
+            }
+
+            // Show loading state
+            predictButtonText.textContent = 'Predicting...';
+            predictLoadingSpinner.classList.remove('hidden');
+            predictOutcomeBtn.disabled = true;
+            clearFormBtn.disabled = true;
+            bulkPredictBtn.disabled = true; // Disable bulk predict during single prediction
+            addToHistoryBtn.classList.add('hidden'); // Hide add to history button during prediction
+            predictionResultArea.innerHTML = ''; // Clear previous message
+
+            try {
+                const predictedOutcome = await simulatePrediction({
+                    productName,
+                    purchaseAmount,
+                    shoppingChannel,
+                    simulateActualStatus
+                });
+
+                let messageType;
+                if (predictedOutcome === 'Keep') messageType = 'success';
+                else if (predictedOutcome === 'Exchange') messageType = 'warning';
+                else messageType = 'error'; // Refund
+
+                showMessage(predictionResultArea, `Predicted: ${predictedOutcome} (Actual: ${simulateActualStatus})`, messageType);
+
+                // Store the result temporarily to be added to history
+                predictOutcomeBtn.dataset.predictedOutcome = predictedOutcome;
+                predictOutcomeBtn.dataset.actualStatus = simulateActualStatus;
+                predictOutcomeBtn.dataset.productName = productName;
+                predictOutcomeBtn.dataset.purchaseAmount = purchaseAmount;
+                predictOutcomeBtn.dataset.shoppingChannel = shoppingChannel;
+
+                addToHistoryBtn.classList.remove('hidden'); // Show add to history button
+            } catch (error) {
+                console.error('Prediction error:', error);
+                showMessage(predictionResultArea, 'An error occurred during prediction. Please try again.', 'error');
+            } finally {
+                predictButtonText.textContent = 'Predict Outcome';
+                predictLoadingSpinner.classList.add('hidden');
+                predictOutcomeBtn.disabled = false;
+                clearFormBtn.disabled = false;
+                bulkPredictBtn.disabled = false; // Re-enable bulk predict
+            }
+        });
+
+        clearFormBtn.addEventListener('click', clearForm);
+        clearHistoryBtn.addEventListener('click', clearHistory);
+
+        addToHistoryBtn.addEventListener('click', () => {
+            const predictedOutcome = predictOutcomeBtn.dataset.predictedOutcome;
+            const actualStatus = predictOutcomeBtn.dataset.actualStatus;
+            const productName = predictOutcomeBtn.dataset.productName;
+            const purchaseAmount = parseFloat(predictOutcomeBtn.dataset.purchaseAmount);
+            const shoppingChannel = predictOutcomeBtn.dataset.shoppingChannel;
+
+            if (predictedOutcome && actualStatus && productName && !isNaN(purchaseAmount) && shoppingChannel) {
+                const newRecord = {
+                    productName,
+                    purchaseAmount,
+                    shoppingChannel,
+                    actualStatus,
+                    predictedOutcome,
+                    customerId: 'CUS' + Math.floor(Math.random() * 100000), // Generate ID here
+                    purchaseTime: new Date().toLocaleString() // Capture time here
+                };
+                purchaseHistory.unshift(newRecord); // Add to beginning of array
+                renderPurchaseHistory(); // Re-render the table and chart
+                showMessage(predictionResultArea, 'Purchase added to history!', 'success');
+                addToHistoryBtn.classList.add('hidden'); // Hide button after adding to history
+            } else {
+                showMessage(predictionResultArea, 'No prediction to add to history. Please make a prediction first.', 'error');
+            }
+        });
+
+        // Smooth scroll for "Start Simulating" button
+        startSimulatingBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = startSimulatingBtn.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop,
+                    behavior: 'smooth'
+                });
+            }
+        });
+
+        // Scroll to Top button logic
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) { // Show button after scrolling 200px
+                scrollToTopBtn.classList.add('show');
+            } else {
+                scrollToTopBtn.classList.remove('show');
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Table sorting logic
+        sortColumnSelect.addEventListener('change', (e) => {
+            currentSortColumn = e.target.value;
+            currentSortOrder = 'asc'; // Reset to asc when changing column via dropdown
+            updateSortOrderButtonIcon();
+            renderPurchaseHistory();
+        });
+
+        sortOrderBtn.addEventListener('click', () => {
+            currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+            updateSortOrderButtonIcon();
+            renderPurchaseHistory();
+        });
+
+        // Event listener for Clear Filters button
+        clearFiltersBtn.addEventListener('click', () => {
+            currentSortColumn = 'time'; // Reset to default sort column
+            currentSortOrder = 'desc';  // Reset to default sort order
+            sortColumnSelect.value = currentSortColumn; // Update dropdown to reflect default
+            updateSortOrderButtonIcon(); // Update sort order button icon
+            renderPurchaseHistory(); // Re-render with reset sorting
+            showMessage(predictionResultArea, 'Filters cleared and sorting reset.', 'info');
+        });
+
+        tableHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const column = header.dataset.column;
+                if (column) {
+                    if (currentSortColumn === column) {
+                        // If same column, toggle order
+                        currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        // If new column, set to new column and default to ascending
+                        currentSortColumn = column;
+                        currentSortOrder = 'asc';
+                    }
+                    // Update the dropdown to reflect the new sort column
+                    sortColumnSelect.value = currentSortColumn;
+                    updateSortOrderButtonIcon(); // Update sort order button icon
+                    renderPurchaseHistory();
+                }
+            });
+        });
+
+        // --- Bulk Predict Logic ---
+        bulkPredictBtn.addEventListener('click', () => {
+            bulkPredictModal.classList.add('show');
+            numBulkEntriesInput.focus();
+            bulkPredictMessageArea.innerHTML = ''; // Clear message on open
+        });
+
+        closeBulkModalBtn.addEventListener('click', () => {
+            bulkPredictModal.classList.remove('show');
+            bulkPredictMessageArea.innerHTML = ''; // Clear message on close
+        });
+
+        generateBulkBtn.addEventListener('click', async () => {
+            const numEntries = parseInt(numBulkEntriesInput.value, 10);
+
+            if (isNaN(numEntries) || numEntries <= 0) {
+                showMessage(bulkPredictMessageArea, 'Please enter a valid number of entries (e.g., 1 or more).', 'error');
+                return;
+            }
+            if (numEntries > 100) { // Limit for performance in a demo to avoid freezing the browser
+                showMessage(bulkPredictMessageArea, 'For demo purposes, please generate up to 100 entries at a time.', 'error');
+                return;
+            }
+
+            // Disable buttons and show loading spinner
+            generateBulkButtonText.textContent = 'Generating...';
+            generateBulkLoadingSpinner.classList.remove('hidden');
+            generateBulkBtn.disabled = true;
+            closeBulkModalBtn.disabled = true;
+            predictOutcomeBtn.disabled = true; // Disable main predict button
+            clearFormBtn.disabled = true; // Disable clear form button
+            bulkPredictBtn.disabled = true; // Disable bulk predict button itself
+            bulkPredictMessageArea.innerHTML = ''; // Clear any previous messages in the modal
+
+            const newRecords = [];
+            for (let i = 0; i < numEntries; i++) {
+                // Generate random data for each input field
+                const randomProduct = dummyProducts[Math.floor(Math.random() * dummyProducts.length)];
+                const randomAmount = (Math.random() * (200 - 10) + 10); // Random amount between $10 and $200
+                const randomChannel = dummyChannels[Math.floor(Math.random() * dummyChannels.length)];
+                const randomActualStatus = possibleOutcomes[Math.floor(Math.random() * possibleOutcomes.length)];
+
+                try {
+                    // Simulate prediction for the randomly generated data
+                    const predictedOutcome = await simulatePrediction({
+                        productName: randomProduct,
+                        purchaseAmount: parseFloat(randomAmount),
+                        shoppingChannel: randomChannel,
+                        simulateActualStatus: randomActualStatus
+                    });
+
+                    // Add the new record with both actual and predicted outcomes
+                    newRecords.push({
+                        customerId: 'BULK-CUS' + Math.floor(Math.random() * 1000000), // Unique ID for bulk entries
+                        purchaseTime: new Date().toLocaleString(), // Current timestamp
+                        productName: randomProduct,
+                        purchaseAmount: parseFloat(randomAmount),
+                        shoppingChannel: randomChannel,
+                        actualStatus: randomActualStatus,
+                        predictedOutcome: predictedOutcome
+                    });
+                } catch (error) {
+                    console.error('Error simulating prediction in bulk:', error);
+                    showMessage(bulkPredictMessageArea, 'An error occurred during bulk prediction. Some entries might be missing.', 'error');
+                    // Continue generating other records if one fails, or break depending on desired behavior
+                }
+            }
+
+            // Add new records to the beginning of the existing purchase history
+            purchaseHistory = newRecords.concat(purchaseHistory);
+            renderPurchaseHistory(); // Update the history table with new data
+
+            showMessage(bulkPredictMessageArea, `Successfully generated ${newRecords.length} entries and added to history.`, 'success');
+            
+            // Reset button state after generation
+            generateBulkButtonText.textContent = 'Generate & Add to History';
+            generateBulkLoadingSpinner.classList.add('hidden');
+            generateBulkBtn.disabled = false;
+            closeBulkModalBtn.disabled = false;
+            
+            // Re-enable main buttons
+            predictOutcomeBtn.disabled = false;
+            clearFormBtn.disabled = false;
+            bulkPredictBtn.disabled = false;
+
+            // Automatically close the modal after successful generation and a short delay
+            setTimeout(() => {
+                bulkPredictModal.classList.remove('show');
+                bulkPredictMessageArea.innerHTML = ''; // Clear message after closing
+            }, 2000); // Close after 2 seconds
+        });
+
+
+        // --- Initial Setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup auto-complete for Product Name
+            setupAutoComplete(productNameInput, productSuggestionsDiv, dummyProducts);
+            productNameInput.value = dummyProducts[0] || ''; // Set initial value
+
+            // Setup auto-complete for Shopping Channel
+            setupAutoComplete(shoppingChannelInput, shoppingChannelSuggestionsDiv, dummyChannels);
+            shoppingChannelInput.value = dummyChannels[0] || ''; // Set initial value
+
+            // Setup auto-complete for Simulate Actual Status
+            setupAutoComplete(simulateActualStatusInput, simulateActualStatusSuggestionsDiv, possibleOutcomes);
+            simulateActualStatusInput.value = possibleOutcomes[0] || ''; // Set initial value
+            
+            clearForm(); // Initialize form state
+            updateSortOrderButtonIcon(); // Set initial icon for sort order button
+            renderPurchaseHistory(); // Render initial empty history table and chart
+        });
+    </script>
+</body>
+</html>

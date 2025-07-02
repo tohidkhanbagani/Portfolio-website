@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tohid Bagani - Data Scientist Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+      /* -------------------------------------------------------------------------- */
+      /*  General Styles and Icon Font                                            */
+      /* -------------------------------------------------------------------------- */
+
+      /* Style for icon font (assuming "ri-" prefix is for Remix Icon or similar) */
+      /* Sets the content property for elements with classes starting with "ri-" to display a specific icon character. */
+      /* In this case, it's set to "\f3c2", which is likely a specific icon code from the icon font library. */
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      img {
+        max-width: 100%; /* Ensure images don't exceed their container width */
+        height: auto;     /* Maintain aspect ratio */
+        display: block;   /* Prevent extra space below inline images */
+      }
+
+      body {
+  overflow-x: hidden; /* Add this for testing */
+  cursor: url('Assets/cursor/cursor.png')
+            }
+
+
+      /* -------------------------------------------------------------------------- */
+      /*  Theme: Light Theme Variables                                             */
+      /* -------------------------------------------------------------------------- */
+
+      .theme-light {
+        /* Define variables for the light theme */
+        --bg-primary: #F9FAFB;        /* Soft Off-White Background - Less stark than pure white */
+        --text-primary: #1E2732;       /* Dark Charcoal Primary Text - Strong readability on light bg */
+        --text-secondary: #6B7280;    /* Medium Cool Gray Secondary Text - Soft contrast */
+        --accent: #4FD1C5;          /* Soft Teal-leaning Blue Accent - Connects subtly to dark theme teal */
+        --card-bg: #FFFFFF;         /* Pure White Card Background - Subtle layer on off-white bg */
+        --border-color: #E5E7EB;     /* Light Gray Border - Soft and unobtrusive */
+        --hover-bg: #F3F4F6;        /* Very Light Gray Hover Background - Gentle feedback */
+        --primary-rgb: 79, 209, 197; /* RGB for soft teal accent (matching --accent) */
+        --hero-description-text-color: var(--text-secondary);
+      }
+
+      /* New styles for hero description paragraph */
+.hero-description-text {
+  color: var(--hero-description-text-color); /* Default color (light mode) will be set below */
+}
+
+
+      /* -------------------------------------------------------------------------- */
+      /*  Glass Effect                                                              */
+      /* -------------------------------------------------------------------------- */
+
+      .glass-effect {
+        /* Apply a glassmorphism effect */
+        backdrop-filter: blur(10px); /* Apply blur to the content behind the element */
+        -webkit-backdrop-filter: blur(10px); /* Vendor prefix for Safari */
+        background: rgba(255, 255, 255, 0.7); /* Semi-transparent white background */
+        border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle white border */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.05); /* Subtle shadow for depth */
+      }
+
+      /* Dark Theme specific glass effect (optional - for darker background) */
+      .theme-dark .glass-effect {
+        /* Adjust glass effect for dark theme to maintain visibility */
+        background: rgba(25, 25, 25, 0.6); /* Darker background for dark mode */
+        border: 1px solid rgba(255, 255, 255, 0.1); /* Even more subtle white border in dark mode */
+      }
+
+
+
+      /* -------------------------------------------------------------------------- */
+      /*  Hover Card Effect                                                         */
+      /* -------------------------------------------------------------------------- */
+
+      .hover-card {
+        /* Define base styles for hover cards and set transitions */
+        transition: transform 0.25s ease-out, box-shadow 0.25s ease-out; /* Smooth transitions for transform and box-shadow */
+      }
+
+      .hover-card:hover {
+        /* Styles applied on hover */
+        transform: translateY(-5px) scale(1.025); /* Slightly lift and scale the card on hover */
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12); /* More pronounced shadow on hover for depth */
+        border: 1px solid var(--accent);  /* Highlight border on hover using accent color */
+      }
+
+      /* Theme-aware shadow for hover card in dark mode (optional) */
+      .theme-dark .hover-card:hover {
+        /* Adjust shadow for hover card in dark theme for better visibility */
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow in dark mode */
+      }
+
+
+
+
+      /* -------------------------------------------------------------------------- */
+      /*  Project Card Hover Effect                                                 */
+      /* -------------------------------------------------------------------------- */
+
+      .project-card:hover {
+        /* Hover effect specifically for project cards */
+        border: 2px solid var(--accent); /* Highlight border with accent color on hover */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Subtle shadow enhancement on hover */
+        transform: translateY(-2px); /* Slightly lift the card on hover */
+      }
+
+
+      /* -------------------------------------------------------------------------- */
+      /*  Theme Light - Primary RGB Definition (for rgba usage)                     */
+      /* -------------------------------------------------------------------------- */
+
+      /* Ensure primary-rgb is defined in theme-light for rgba color usage */
+      .theme-light {
+        /* ... other theme-light vars ... */
+        --primary-rgb: 59, 130, 246; /* RGB value for primary color in light mode */
+      }
+
+
+      /* -------------------------------------------------------------------------- */
+      /*  Dark Theme Navigation Link Style                                          */
+      /* -------------------------------------------------------------------------- */
+
+      .theme-dark nav a {
+        /* Style navigation links in dark theme */
+        color: #FFFFFF; /* Set text color to WHITE in dark mode */
+        transition: none; /* Remove transition for text color in dark mode to avoid conflicts (optional) */
+      }
+
+
+      /* -------------------------------------------------------------------------- */
+      /*  Gradient Text Animation                                                   */
+      /* -------------------------------------------------------------------------- */
+
+      .gradient-text {
+        /* Style for gradient text */
+        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); /* Linear gradient background */
+        -webkit-background-clip: text; /* Clip background to text content */
+        -webkit-text-fill-color: transparent; /* Make text transparent to show background */
+        animation: gradientFlow 3s ease infinite; /* Apply gradient flow animation */
+      }
+
+      .hero-gradient {
+        /* Style for hero section gradient background */
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(96, 165, 250, 0.05) 100%); /* Subtle gradient background */
+        position: relative; /* Position relative for pseudo-element overlay */
+        overflow: hidden; /* Ensure background image stays within bounds */
+      }
+
+      .hero-gradient::before {
+        /* Pseudo-element for background image overlay in hero section */
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('https://public.readdy.ai/ai/img_res/38aa050536658198edfe736df43c5f1b.jpg') center/cover; /* Background image */
+        opacity: 0.1; /* Set opacity for subtle overlay effect */
+      }
+
+      .animated-border {
+        /* Style for elements with animated bottom border */
+        position: relative; /* Position relative to contain pseudo-element border */
+      }
+
+      .animated-border::after {
+        /* Pseudo-element to create animated bottom border on hover */
+        content: '';
+        position: absolute;
+        bottom: -2px; /* Position just below the element */
+        left: 0;
+        width: 0; /* Initial width is 0, expands on hover */
+        height: 2px; /* Border thickness */
+        background: var(--accent); /* Border color from accent variable */
+        transition: width 0.3s ease; /* Smooth width transition on hover */
+      }
+
+      .animated-border:hover::after {
+        /* Expand border width to 100% on hover */
+        width: 100%;
+      }
+
+      @keyframes gradientFlow {
+        /* Keyframes for gradient animation */
+        0% {
+          background-position: 0% 50%; /* Start position */
+        }
+        50% {
+          background-position: 100% 50%; /* Middle position */
+        }
+        100% {
+          background-position: 0% 50%; /* End position, loops back to start */
+        }
+      }
+
+
+      /* -------------------------------------------------------------------------- */
+      /*  Card Grid Layout                                                          */
+      /* -------------------------------------------------------------------------- */
+
+      .card-grid {
+        /* Style for grid layout of cards */
+        display: grid; /* Enable grid layout */
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns, min width 300px, flexible width */
+        gap: 2rem; /* Gap between grid items */
+      }
+
+
+      /* -------------------------------------------------------------------------- */
+      /*  Skill Card Style                                                          */
+      /* -------------------------------------------------------------------------- */
+
+      .skill-card {
+        /* Style for skill cards */
+        background: linear-gradient(145deg, #ffffff, #f5f5f5); /* Soft neumorphic background gradient */
+        border-radius: 20px; /* Rounded corners */
+        padding: 2rem; /* Padding inside the card */
+        box-shadow: 8px 8px 16px #e6e6e6, -8px -8px 16px #ffffff; /* Neumorphic shadow effect */
+      }
+
+
+      /* -------------------------------------------------------------------------- */
+      /*  Project Image Hover Effect                                                */
+      /* -------------------------------------------------------------------------- */
+
+      .project-image-wrapper {
+        /* Wrapper for project images to handle overflow and hover effect */
+        overflow: hidden; /* Clip image corners to match wrapper border-radius */
+        border-radius: 12px; /* Rounded corners for image wrapper */
+      }
+
+      .project-image-wrapper img {
+        /* Style for images within project image wrappers */
+        transition: transform 0.5s ease; /* Smooth transition for scaling on hover */
+      }
+
+      .project-image-wrapper:hover img {
+        /* Scale image slightly on wrapper hover */
+        transform: scale(1.05);
+      }
+
+
+
+      /* -------------------------------------------------------------------------- */
+      /*  Theme Light - Project Icon Color                                          */
+      /* -------------------------------------------------------------------------- */
+
+      .theme-light {
+        /* ... other theme-light variables ... */
+        --project-icon-color: #4B5563; /* Dark gray for icons in light mode */
+      }
+
+
+      /* -------------------------------------------------------------------------- */
+      /*  Theme Dark - Project Icon Color                                           */
+      /* -------------------------------------------------------------------------- */
+
+      .theme-dark {
+        /* ... other theme-dark variables ... */
+        --project-icon-color: #4b4b4b; /* White for icons in dark mode */
+      }
+
+
+      .hidden {
+  display: none;
+}
+
+      /* -------------------------------------------------------------------------- */
+      /*  Theme: Dark Theme Variables                                              */
+      /* -------------------------------------------------------------------------- */
+
+      .theme-dark {
+        /* Define variables for the dark theme - Overrides light theme variables */
+        --bg-primary: #111827;          /* Dark background color for primary areas */
+        --text-primary: #E5E7EB;         /* Light text color for primary text in dark mode */
+        --text-secondary: #9CA3AF;      /* Medium gray text color for secondary text in dark mode */
+        --accent: #4FD1C5;            /* Teal accent color, same as light theme for consistency */
+        --card-bg: #1F2937;           /* Darker background for cards in dark mode */
+        --border-color: #374151;        /* Darker border color for dark mode */
+        --hover-bg: #374151;           /* Darker hover background in dark mode */
+        --primary-rgb: 79, 209, 197;   /* RGB for teal accent (matching --accent) */
+        --project-icon-color: #9CA3AF;  /* Light gray for project icons in dark mode */
+        --bg-accent-green: #111827;    /* Darker green background for 'Current' tag in dark mode */
+        --text-accent-text-green: #4FD1C5; /* Light green text for 'Current' tag in dark mode */
+        --bg-course-item: #374151;      /* Darker background for course items in dark mode */
+        --bg-thesis: #374151;        /* Darker background for thesis sections in dark mode */
+        --card-cert-bg:#1F2937;
+        --hero-description-text-color: #f9fafb; /* Off-white for hero description in dark mode */
+        --text-secondary: #9CA3AF; /* Keep --text-secondary as the greyish color for other elements */
+
+      }
+
+.theme-dark .education-card-inner-box {
+    background:  var(--bg-primary); 
+    border-color: var(--border-color); 
+}
+
+.theme-dark .education-card-inner-box-title {
+    color: white; 
+}
+
+
+
+.theme-dark .certification-card-inner-text {
+  color: var(--text-primary);
+}
+
+
+      /* -------------------------------------------------------------------------- */
+      /*  Theme Transition                                                          */
+      /* -------------------------------------------------------------------------- */
+
+      .theme-transition {
+        /* Apply smooth transition to theme changes */
+        transition: all 0.2s ease; /* Transition all properties for 0.2s with ease timing function */
+      }
+
+      .theme-transition * {
+        /* Apply transition to all child elements as well to ensure smooth theme changes across the board */
+        transition: all 0.2s ease;
+      }
+
+
+      /* -------------------------------------------------------------------------- */
+      /*  Number Input Spin Button Hide (Webkit Browsers)                          */
+      /* -------------------------------------------------------------------------- */
+
+      /* Hide spin buttons for number input fields in Webkit browsers (Chrome, Safari) */
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none; /* Remove default appearance */
+        margin: 0; /* Reset margins */
+      }
+      
+      </style>
+
+
+
+
+<script>
+  tailwind.config = {
+    darkMode: 'class', // Add this line
+    theme: {
+      extend: {
+        colors: {
+          primary: "#3b82f6",
+          secondary: "#60a5fa",
+        },
+        borderRadius: {
+          none: "0px",
+          sm: "4px",
+          DEFAULT: "8px",
+          md: "12px",
+          lg: "16px",
+          xl: "20px",
+          "2xl": "24px",
+          "3xl": "32px",
+          full: "9999px",
+          button: "8px",
+        },
+        fontFamily: {
+          inter: ["Inter", "sans-serif"],
+        },
+      },
+    },
+  };
+</script>
+
+
+
+
+
+  </head>
+  <body
+
+
+    class="theme-light theme-transition font-inter"
+    x-data="{ darkMode: false }"
+  >
+    <div class="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
+      <nav class="fixed w-full glass-effect z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="flex justify-between h-20">
+    <div class="flex items-center">
+      <a
+        href="#"
+        class="text-3xl font-['Pacifico'] text-primary hover:scale-110 transition-transform duration-300"
+        >Tohid Bagani</a
+      >
+       <div class="hidden md:flex space-x-8 ml-12">
+        <a
+          href="#home"
+          class="text-gray-900 hover:text-primary px-4 py-2 text-sm font-medium relative animated-border"
+          >Home</a
+        >
+        <a
+          href="#projects"
+          class="text-gray-900 hover:text-primary px-4 py-2 text-sm font-medium relative animated-border"
+          >Projects</a
+        >
+        <a
+          href="#skills"
+          class="text-gray-900 hover:text-primary px-4 py-2 text-sm font-medium relative animated-border"
+          >Skills</a
+        >
+        <a
+          href="#certifications"
+          class="text-gray-900 hover:text-primary px-4 py-2 text-sm font-medium relative animated-border"
+          >Education</a
+        >
+        <a
+          href="#contact"
+          class="text-gray-900 hover:text-primary px-4 py-2 text-sm font-medium relative animated-border"
+          >Contact</a
+        >
+      </div>
+    </div>
+    <div class="flex items-center space-x-6">
+
+      <button
+        id="themeToggle"
+        class="p-3 rounded-full hover:bg-white/50 transition-colors duration-300 border border-gray-200"
+      >
+        <i class="ri-sun-line text-xl text-primary"></i>
+      </button>
+      <a
+        href="#contact"
+        class="bg-primary text-white px-6 py-2 rounded-button hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 hover:shadow-lg flex items-center"
+      >
+        <i class="ri-mail-line mr-2"></i>
+        Get in Touch
+      </a>
+    </div>
+  </div>
+</div>
+      </nav>
+
+      <main>
+
+        <section
+  id="home"
+  class="min-h-screen flex items-center hero-gradient relative overflow-hidden pt-20"
+>
+
+  <div
+    class="absolute inset-0 bg-gradient-to-r from-blue-50 to-transparent"
+  ></div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+
+      <div class="space-y-8">
+
+        <div
+          class="inline-flex items-center px-4 py-2 bg-blue-50 rounded-full text-primary"
+        >
+
+          <i class="ri-code-line mr-2"></i>
+
+          <span>Welcome to my portfolio</span>
+        </div>
+        <h1
+          class="text-5xl md:text-7xl font-bold leading-tight text-gray-900"
+        >
+
+          Hi, I'm Tohid Bagani
+          <span class="block gradient-text mt-4"
+            >Data Scientist</span
+          >
+
+        </h1>
+        <p  class="hero-description-text text-xl leading-relaxed">
+
+          Transforming complex data into actionable insights and
+          building intelligent solutions that drive business value.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a
+            href="#projects"
+            class="group bg-primary text-white px-8 py-4 rounded-button hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center"
+          >
+
+            View Projects
+            <i
+              class="ri-arrow-right-line ml-2 transition-transform group-hover:translate-x-1"
+            ></i>
+          </a>
+
+          <a
+          href="Assets/resume/Tohid Bagani .pdf"  
+          download="Tohid_Bagani_Resume.pdf"   
+          class= "group border-2 border-primary text-primary px-8 py-4 rounded-button hover:bg-primary hover:text-white transition-all duration-300 flex items-center"
+        >
+          Download Resume
+          <i
+            class="ri-download-line ml-2 transition-transform group-hover:translate-y-1"
+          ></i>
+        </a>
+        </div>
+
+
+
+      </div>
+      <div class="relative">
+        <div
+          class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-3xl blur-3xl opacity-20 transform rotate-6"
+        ></div>
+
+        <img
+          src="Assets\profile pictures\profile pic.jpeg"
+          alt="Data Visualization"
+          class="relative rounded-3xl shadow-2xl w-full transform hover:scale-105 transition-transform duration-500"
+        />
+        <div
+          class="absolute -bottom-8 -right-8 bg-white p-6 rounded-2xl shadow-xl text-gray-900"
+        >
+          <div class="flex items-center gap-4">
+
+            <div
+              class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center"
+            >
+
+              <i class="ri-line-chart-line text-2xl text-primary"></i>
+
+            </div>
+            <div>
+
+              <p class="font-semibold">Data Analysis</p>
+
+              <p class="text-sm text-gray-600">95% Accuracy</p>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent"
+  ></div>
+
+</section>
+
+        
+      <section id="projects" class="py-24 bg-[var(--bg-primary)]">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          <div class="text-center mb-16">
+
+            <span class="text-primary font-semibold">My Work</span>
+
+            <h2 class="text-4xl font-bold mt-2 mb-4">Featured Projects</h2>
+
+            <p class="text-[var(--text-secondary)] max-w-2xl mx-auto">Explore my portfolio of data science and machine learning projects that demonstrate my expertise in solving complex problems</p>
+
+          </div>
+      
+          <!-- -------------------------------------------------------------------------- -->
+          <!--  Project Filter Buttons Area                                                -->
+          <!-- -------------------------------------------------------------------------- -->
+          <div class="flex flex-wrap justify-center gap-4 mb-12" id="projectFilters">
+            <button class="px-6 py-2 rounded-full bg-[var(--card-bg)] text-[var(--text-primary)] shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:bg-primary hover:text-white" data-filter="all">
+              All Projects
+            </button>
+            <button class="px-6 py-2 rounded-full bg-[var(--card-bg)] text-[var(--text-primary)] shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:bg-primary hover:text-white" data-filter="machine-learning">
+              Machine Learning
+            </button>
+            <button class="px-6 py-2 rounded-full bg-[var(--card-bg)] text-[var(--text-primary)] shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:bg-primary hover:text-white" data-filter="data-analysis">
+              Data Analysis
+            </button>
+            <button class="px-6 py-2 rounded-full bg-[var(--card-bg)] text-[var(--text-primary)] shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:bg-primary hover:text-white" data-filter="visualization">
+              Visualization
+            </button>
+          </div>
+          <!-- -------------------------------------------------------------------------- -->
+          <!--  End Project Filter Buttons Area                                            -->
+          <!-- -------------------------------------------------------------------------- -->
+      
+      
+          <!-- -------------------------------------------------------------------------- -->
+          <!--  Project Cards Grid Area                                                    -->
+          <!-- -------------------------------------------------------------------------- -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="projectsGrid">
+
+            <!-- ========================= Project Card 1 (New) ========================= -->
+             
+            <div class="bg-[var(--card-bg)] rounded-xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 project-card" data-categories="machine-learning,data-analysis,web-development" data-icon="ri-shopping-bag-line">
+              <div class="relative overflow-hidden">
+                <img src="Assets/project images/product_recommendation_tester.png"
+                     alt="Product Recommendation Model Tester"
+                     class="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-500">
+                <div class="absolute top-4 right-4">
+                  <span class="px-3 py-1 bg-teal-600 text-white text-sm rounded-full shadow-lg">Model Testing</span>
+                </div>
+              </div>
+              <div class="p-6">
+                <div class="flex items-center gap-2 mb-4">
+                  <div class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
+                    <i class="ri-shopping-bag-line text-xl text-teal-600 project-icon"></i>
+                  </div>
+                  <h3 class="text-xl font-bold">Product Recommendation Model Tester</h3>
+                </div>
+                <p class="text-[var(--text-secondary)] mb-4">An interactive web application to test and visualize the output of a product recommendation engine based on user purchase history.</p>
+                <div class="flex flex-wrap gap-2 mb-6">
+                  <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Recommendation Systems</span>
+                  <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Machine Learning</span>
+                  <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">Python Backend</span>
+                  <span class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">API Integration</span>
+                  <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">Frontend Development</span>
+                  <span class="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">User Interface</span>
+                </div>
+                <div class="mt-6 flex justify-center">
+                  <a href="pages/product_recommendation.html" target="_blank"
+                     class="inline-flex items-center px-4 py-2 bg-teal-500 text-white rounded-md font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:bg-teal-800">
+                    View Project →
+                  </a>
+                </div>
+              </div>
+            </div>
+            <!-- ========================= End Project Card 1 ========================= -->
+      
+            <!-- ========================= Project Card 2 ========================= -->
+                         <div class="bg-[var(--card-bg)] rounded-xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 project-card" data-categories="machine-learning,data-analysis,visualization" data-icon="ri-shopping-cart-line">
+              <div class="relative overflow-hidden">
+                <img src="Assets/project images/predictive_purchase_simulator.png"
+                     alt="Predictive Purchase Outcome Simulator"
+                     class="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-500">
+                <div class="absolute top-4 right-4">
+                  <span class="px-3 py-1 bg-indigo-600 text-white text-sm rounded-full shadow-lg">Interactive</span>
+                </div>
+              </div>
+              <div class="p-6">
+                <div class="flex items-center gap-2 mb-4">
+                  <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                    <i class="ri-shopping-cart-line text-xl text-indigo-600 project-icon"></i>
+                  </div>
+                  <h3 class="text-xl font-bold">Predictive Purchase Outcome Simulator</h3>
+                </div>
+                <p class="text-[var(--text-secondary)] mb-4">Developed an interactive web-based simulator to predict customer purchase outcomes (Keep, Exchange, Refund) using a machine learning model.</p>
+                <div class="flex flex-wrap gap-2 mb-6">
+                  <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Predictive Modeling</span>
+                  <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Web Development</span>
+                  <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">JavaScript</span>
+                  <span class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">Data Visualization</span>
+                  <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">Tailwind CSS</span>
+                  <span class="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">Chart.js</span>
+                </div>
+                <div class="mt-6 flex justify-center">
+                  <a href="pages/predictive_purchase_outcome.html" target="_blank"
+                     class="inline-flex items-center px-4 py-2 bg-indigo-500 text-white rounded-md font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:bg-indigo-800">
+                    View Project →
+                  </a>
+                </div>
+              </div>
+            </div>
+            <!-- ========================= End Project Card 2 ========================= -->
+      
+            <!-- ========================= Project Card 3 ========================= -->
+            <div class="bg-[var(--card-bg)] rounded-xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 project-card" data-categories="machine-learning,data-analysis, " data-icon="ri-ai-generate">
+
+              <div class="relative overflow-hidden">
+
+                <img src="Assets\project images\Qwen predictive churn.png"
+                     alt="Project 1"
+                     class="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-500">
+                <div class="absolute top-4 right-4">
+
+                  <span class="px-3 py-1 bg-primary text-white text-sm rounded-full shadow-lg">Featured</span>
+
+                </div>
+              </div>
+              <div class="p-6">
+
+                <div class="flex items-center gap-2 mb-4">
+
+                  <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+
+                    <i class="ri-ai-generate text-xl text-primary project-icon"></i>
+                  
+                  </div>
+                  <h3 class="text-xl font-bold">Employee Churn Predictive Modelling</h3>
+                </div>
+                <p class="text-[var(--text-secondary)] mb-4">Developed a predictive model to boost employee churn prediction accuracy by 7.5% and cut false positives by 12%.</p>
+                <div class="flex flex-wrap gap-2 mb-6">
+                  <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Predictive Analytics</span>
+                  <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Machine Learning</span>
+                  <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">Python</span>
+                  <span class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">Data Cleaning</span>
+                </div>
+                <div class="mt-6 flex justify-center"> <!-- Modified this div -->
+                  <a href="https://github.com/tohidkhanbagani/Sailfort_Motors_HR_Analysis_and_Predictive_Modeling"
+                  class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-md font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:bg-blue-600">
+
+                    View Details →
+                  </a>
+
+                </div>
+              </div>
+            </div>
+            <!-- ========================= End Project Card 3 ========================= -->
+
+
+            <!-- ========================= Project Card 4 ========================= -->
+            <div class="bg-[var(--card-bg)] rounded-xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 project-card" data-categories="data-analysis,Visualization" data-icon="ri-line-chart-line">
+              <div class="relative overflow-hidden">
+                <img src="Assets\project images\Gemini covid 19.jpeg"
+                     alt="Project 2"
+                     class="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-500">
+                <div class="absolute top-4 right-4">
+                  <span class="px-3 py-1 bg-purple-600 text-white text-sm rounded-full shadow-lg">New</span>
+                </div>
+              </div>
+              <div class="p-6">
+                <div class="flex items-center gap-2 mb-4">
+                  <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i class="ri-line-chart-line text-xl text-purple-600 project-icon"></i>
+                  </div>
+                  <h3 class="text-xl font-bold">Global Pandemic Insights: Covid-19 impact</h3>
+                </div>
+                <p class="text-[var(--text-secondary)] mb-4">Examined global COVID-19 data, providing clear insights through statistical analysis and data visualization.</p>
+                <div class="flex flex-wrap gap-2 mb-6">
+                  <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Data Analysis</span>
+                  <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Statistical Analysis</span>
+                  <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">Data Cleaning</span>
+                </div>
+                <div class="mt-6 flex justify-center"> 
+                  <a href="https://github.com/tohidkhanbagani/Global-Pandemic-Insights-A-Data-Driven-Analysis-of-COVID-19."
+
+                     class="inline-flex items-center px-4 py-2 bg-purple-500 text-white rounded-md font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:bg-purple-800">
+                    View Details →
+
+
+                  </a>
+
+
+                </div>
+              </div>
+            </div>
+            <!-- ========================= End Project Card 4 ========================= -->
+
+
+            <!-- ========================= Project Card 5 ========================= -->
+            <div class="bg-[var(--card-bg)] rounded-xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 project-card" data-categories="data-analysis,visualization" data-icon="ri-bar-chart-box-line">
+              <div class="relative overflow-hidden">
+                <img src="Assets\project images\Gemini bike rides image.jpeg"
+                     alt="Project 3"
+                     class="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-500">
+                <div class="absolute top-4 right-4">
+                  <span class="px-3 py-1 bg-green-600 text-white text-sm rounded-full shadow-lg">Completed</span>
+                </div>
+              </div>
+              <div class="p-8">
+                <div class="flex items-center gap-2 mb-4">
+                  <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i class="ri-bar-chart-box-line text-xl text-green-600 project-icon"></i>
+                  </div>
+                  <h3 class="text-xl font-bold">Bike Share Data Analysis</h3>
+                </div>
+                <p class="text-[var(--text-secondary)] mb-4">Leveraged Python and Tableau for data management and analysis of bike share data.</p>
+                <div class="flex flex-wrap gap-2 mb-6">
+                  <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Python</span>
+                  <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Tableau</span>
+                  <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">Automation</span>
+                </div>
+                <div class="mt-20 flex justify-center"> 
+                  <a href="https://www.kaggle.com/code/tohidkhanbagani/cyclistic-analysis"
+
+                     class="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-md font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:bg-green-800">
+
+                    View Details
+                    <i class="ri-arrow-right-line"></i>
+                  </a>
+
+                </div>
+              </div>
+            </div>
+            <!-- ========================= End Project Card 5 ========================= -->
+      
+          </div>
+          <!-- -------------------------------------------------------------------------- -->
+          <!--  End Project Cards Grid Area                                                -->
+          <!-- -------------------------------------------------------------------------- -->
+      
+      
+          <!-- </div>
+                <div class="mt-12 text-center">
+                  <button class="px-8 py-3 bg-white text-primary border-2 border-primary rounded-full hover:bg-primary hover:text-white transition-colors duration-300 font-medium flex items-center gap-2 mx-auto">
+                    View All Projects
+                    <i class="ri-arrow-right-line"></i>
+                  </button>
+                </div>
+              </div> -->
+      </section>
+
+
+
+
+
+
+      <section id="skills" class="py-24 bg-gradient-to-b from-[var(--bg-primary)] to-[var(--hover-bg)]">
+  <!-- Skills Section -->
+  <!-- - `id="skills"`: Anchor ID for navigation to this section. -->
+  <!-- - `py-24`: Vertical padding (top and bottom) of 24 units. -->
+  <!-- - `bg-gradient-to-b from-[var(--bg-primary)] to-[var(--hover-bg)]`: Background gradient from primary background color to hover background color, creating a subtle transition. -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Container for skills section content, limiting width and adding responsive padding -->
+    <!-- - `max-w-7xl`: Maximum width of the container for larger screens. -->
+    <!-- - `mx-auto`: Centers the container horizontally. -->
+    <!-- - `px-4 sm:px-6 lg:px-8`: Responsive horizontal padding for different screen sizes. -->
+    <div class="text-center mb-16">
+      <!-- Text container for the section heading, centered text and bottom margin -->
+      <!-- - `text-center`: Centers the text content horizontally. -->
+      <!-- - `mb-16`: Bottom margin of 16 units to separate from the skills grid. -->
+      <span class="text-primary font-semibold">What I Master</span>
+      <!-- Section title - "What I Master" -->
+      <!-- - `text-primary`: Text color using the 'primary' color. -->
+      <!-- - `font-semibold`: Semi-bold font weight. -->
+      <h2 class="text-4xl font-bold mt-2 mb-4">Skills & Technologies</h2>
+      <!-- Section main heading - "Skills & Technologies" -->
+      <!-- - `text-4xl`: Large text size for the heading. -->
+      <!-- - `font-bold`: Bold font weight for the heading. -->
+      <!-- - `mt-2 mb-4`: Top and bottom margins for spacing around the heading. -->
+      <p class="text-[var(--text-secondary)] max-w-2xl mx-auto">Leveraging cutting-edge technologies and methodologies to deliver innovative solutions in data science and machine learning</p>
+      <!-- Section description paragraph -->
+      <!-- - `text-[var(--text-secondary)]`: Text color using the CSS variable `--text-secondary` (theme-aware secondary text color). -->
+      <!-- - `max-w-2xl`: Maximum width of the paragraph to limit text line length for readability. -->
+      <!-- - `mx-auto`: Centers the paragraph horizontally. -->
+    </div>
+
+    <!-- -------------------------------------------------------------------------- -->
+    <!--  Skills Grid Area                                                          -->
+    <!-- -------------------------------------------------------------------------- -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <!-- Skills grid container -->
+      <!-- - `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4`: Responsive grid layout (1 column on small, 2 on medium, 4 on large screens). -->
+      <!-- - `gap-8`: Gap between grid items (skill cards). -->
+
+      <!-- ========================= Skill Card 1: Programming Languages ========================= -->
+      <div class="bg-[var(--card-bg)] p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+        <!-- Skill Card 1 Container -->
+        <!-- - `bg-[var(--card-bg)]`: Background color using the CSS variable `--card-bg` (theme-aware card background color). -->
+        <!-- - `p-6`: Padding inside the skill card. -->
+        <!-- - `rounded-xl`: Extra large rounded corners for the card. -->
+        <!-- - `shadow-lg`: Large shadow for card depth. -->
+        <!-- - `hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2`: Enhanced shadow, smooth transition, and slight lift on hover. -->
+        <div class="flex items-center justify-between mb-6">
+          <!-- Skill card header - Icon and proficiency level -->
+          <!-- - `flex items-center justify-between mb-6`: Flex container, center alignment, space between items, bottom margin. -->
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <!-- Icon background circle -->
+            <!-- - `w-12 h-12`: Fixed width and height for the icon circle. -->
+            <!-- - `bg-blue-100`: Light blue background for the icon circle. -->
+            <!-- - `rounded-lg`: Rounded corners for the icon circle. -->
+            <!-- - `flex items-center justify-center`: Flex container to center icon within. -->
+            <i class="ri-code-s-slash-line text-2xl text-primary"></i>
+            <!-- Skill Icon - Programming Languages -->
+            <!-- - `ri-code-s-slash-line`: Class for Remix Icon code slash icon. -->
+            <!-- - `text-2xl text-primary`: Large icon size, primary color. -->
+          </div>
+          <span class="text-sm font-semibold text-primary bg-blue-50 px-3 py-1 rounded-full">Advanced</span>
+          <!-- Proficiency badge - "Advanced" -->
+          <!-- - `text-sm font-semibold text-primary`: Small text size, semi-bold font weight, primary text color. -->
+          <!-- - `bg-blue-50 px-3 py-1 rounded-full`: Light blue background, padding, full rounded corners. -->
+        </div>
+        <h3 class="text-xl font-bold mb-4">Programming Languages</h3>
+        <!-- Skill card title - "Programming Languages" -->
+        <!-- - `text-xl font-bold mb-4`: Large text size, bold font weight, bottom margin. -->
+        <div class="space-y-4">
+          <!-- Skill progress bars container -->
+          <!-- - `space-y-4`: Vertical spacing between skill progress bars. -->
+          <div>
+            <!-- Skill progress bar for Python -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <!-- Skill name and percentage -->
+                <!-- - `flex justify-between mb-1`: Flex container, space between items, bottom margin. -->
+                <span class="text-sm font-medium">Python</span>
+                <span class="text-sm text-primary">95%</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <!-- Progress bar track -->
+                <!-- - `h-2 bg-gray-200 rounded-full overflow-hidden`: Fixed height, light gray background, rounded corners, hide overflow for smooth progress bar. -->
+                <div class="h-full bg-gradient-to-r from-primary to-blue-400 rounded-full" style="width: 95%"></div>
+                <!-- Progress bar fill -->
+                <!-- - `h-full bg-gradient-to-r from-primary to-blue-400 rounded-full`: Full height, gradient background, rounded corners. -->
+                <!-- - `style="width: 95%"`:  Sets the width of the progress bar to 95%. -->
+              </div>
+            </div>
+          </div>
+          <div>
+            <!-- Skill progress bar for SQL (similar structure to Python) -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">SQL</span>
+                <span class="text-sm text-primary">90%</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-primary to-blue-400 rounded-full" style="width: 90%"></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <!-- Skill progress bar for R (similar structure to Python) -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">R</span>
+                <span class="text-sm text-primary">80%</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-primary to-blue-400 rounded-full" style="width: 80%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ========================= End Skill Card 1 ========================= -->
+
+
+      <!-- ========================= Skill Card 2: Data Analysis & Machine Learning ========================= -->
+      <div class="bg-[var(--card-bg)] p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+        <!-- Skill Card 2 Container (similar structure and classes to Skill Card 1, but with different content and styling) -->
+        <div class="flex items-center justify-between mb-6">
+          <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            <i class="ri-brain-line text-2xl text-purple-600"></i>
+          </div>
+          <span class="text-sm font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">Expert</span>
+        </div>
+        <h3 class="text-xl font-bold mb-4">Data Analysis & Machine Learning</h3>
+        <div class="space-y-4">
+          <div>
+            <!-- Skill progress bar for Machine Learning -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">Machine Learning</span>
+                <span class="text-sm text-purple-600">92%</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-full" style="width: 92%"></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <!-- Skill progress bar for Statistical Analysis -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">Statistical Analysis</span>
+                <span class="text-sm text-purple-600">88%</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-full" style="width: 88%"></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <!-- Skill progress bar for Data Analysis -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">Data Analysis</span>
+                <span class="text-sm text-purple-600">95%</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-full" style="width: 95%"></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <!-- Skill progress bar for Data Mining -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">Data Mining</span>
+                <span class="text-sm text-purple-600">85%</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-full" style="width: 85%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ========================= End Skill Card 2 ========================= -->
+
+
+      <!-- ========================= Skill Card 3: Data Tools & Libraries ========================= -->
+      <div class="bg-[var(--card-bg)] p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+        <!-- Skill Card 3 Container (similar structure and classes to Skill Card 1 & 2, but with different content and styling) -->
+        <div class="flex items-center justify-between mb-6">
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <i class="ri-database-2-line text-2xl text-green-600"></i>
+          </div>
+          <span class="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full">Proficient</span>
+        </div>
+        <h3 class="text-xl font-bold mb-4">Data Tools & Libraries</h3>
+        <div class="space-y-4">
+          <div>
+            <!-- Skill progress bar for Pandas -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">Pandas</span>
+                <span class="text-sm text-green-600">92%</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-green-600 to-green-400 rounded-full" style="width: 92%"></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <!-- Skill progress bar for NumPy -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">NumPy</span>
+                <span class="text-sm text-green-600">90%</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-green-600 to-green-400 rounded-full" style="width: 90%"></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <!-- Skill progress bar for Seaborn -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">Seaborn</span>
+                <span class="text-sm text-green-600">88%</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-green-600 to-green-400 rounded-full" style="width: 88%"></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <!-- Skill progress bar for Matplotlib -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">Matplotlib</span>
+                <span class="text-sm text-green-600">85%</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-green-600 to-green-400 rounded-full" style="width: 85%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ========================= End Skill Card 3 ========================= -->
+
+
+      <!-- ========================= Skill Card 4: Data Visualization Tools ========================= -->
+      <div class="bg-[var(--card-bg)] p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+        <!-- Skill Card 4 Container (similar structure and classes to previous skill cards) -->
+        <div class="flex items-center justify-between mb-6">
+          <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+            <i class="ri-line-chart-line text-2xl text-orange-600"></i>
+          </div>
+          <span class="text-sm font-semibold text-orange-600 bg-orange-50 px-3 py-1 rounded-full">Expert</span>
+        </div>
+        <h3 class="text-xl font-bold mb-4">Data Visualization Tools</h3>
+        <div class="space-y-4">
+          <div>
+            <!-- Skill progress bar for Tableau -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">Tableau</span>
+                <span class="text-sm text-orange-600">92%</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-orange-600 to-orange-400 rounded-full" style="width: 92%"></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <!-- Skill progress bar for Power BI -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">Power BI</span>
+                <span class="text-sm text-orange-600">90%</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-orange-600 to-orange-400 rounded-full" style="width: 90%"></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <!-- Skill progress bar for Google Data Studio -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">Google Data Studio</span>
+                <span class="text-sm text-orange-600">80%</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-orange-600 to-orange-400 rounded-full" style="width: 80%"></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <!-- Skill progress bar for Microsoft Excel -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">Microsoft Excel</span>
+                <span class="text-sm text-orange-600">88%</span>
+              </div>
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-orange-600 to-orange-400 rounded-full" style="width: 88%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ========================= End Skill Card 4 ========================= -->
+
+    </div>
+    <!-- -------------------------------------------------------------------------- -->
+    <!--  End Skills Grid Area                                                      -->
+    <!-- -------------------------------------------------------------------------- -->
+
+  </div>
+</section>
+
+
+        
+        <section id="certifications" class="py-24 bg-[var(--bg-primary)]">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold mb-12 text-center">
+              Certifications & Education
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div
+                class="bg-[var(--card-bg)] p-6 rounded-lg shadow-lg hover-card overflow-hidden"
+              >
+                <div
+                  class="absolute top-0 right-0 w-32 h-32 transform translate-x-16 -translate-y-16"
+                >
+                  <div
+                    class="absolute inset-0 bg-gradient-to-br from-primary to-secondary opacity-10 rounded-full"
+                  ></div>
+                </div>
+                <div class="flex items-center mb-6 relative">
+                  <div
+                    class="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white shadow-lg"
+                  >
+                    <i class="ri-graduation-cap-fill text-2xl"></i>
+                  </div>
+                  <div class="ml-4">
+                    <h3 class="text-xl font-semibold">
+                      Masters of Business Administration
+                    </h3>
+                    <p class="text-[var(--text-secondary)]">
+                      Jai Narain Vyas University • 2023 - 2025
+                    </p>
+                  </div>
+                </div>
+
+                <div class="space-y-6">
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="px-4 py-1 bg-blue-50 rounded-full text-primary text-sm font-medium"
+                    >
+                      Major: Data Analytics
+                    </div>
+                    <div
+                      class="px-4 py-1 bg-green-50 rounded-full text-green-600 text-sm font-medium"
+                    >
+                      GPA: 3.95/4.0
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 gap-4">
+                    <div
+                      class="p-4 bg-gray-100 rounded-lg border border-gray-100 education-card-inner-box"
+                    >
+                      <h4 class="font-medium text-primary mb-3 education-card-inner-box-title">
+                        Core Specializations
+                      </h4>
+                      <div class="grid grid-cols-2 gap-3">
+                        <div class="flex items-center gap-2">
+                          <i class="ri-database-2-line text-blue-500"></i>
+                          <span class="text-sm">Big Data Analytics</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <i class="ri-ai-line text-purple-500"></i>
+                          <span class="text-sm">Machine Learning</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <i class="ri-line-chart-line text-green-500"></i>
+                          <span class="text-sm">Predictive Modeling</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <i class="ri-cloud-line text-orange-500"></i>
+                          <span class="text-sm">Cloud Computing</span>
+                        </div>
+                      </div>
+                    </div>
+
+
+                    <div
+                      class="p-4 bg-gray-100 rounded-lg border border-gray-100 education-card-inner-box"
+                    >
+                      <h4 class="font-medium text-primary mb-3 education-card-inner-box-title">
+                        Summary
+                      </h4>
+                      <p class="text-sm text-white-600">
+                        My MBA journey, specializing in Data Analytics, has equipped me with a robust understanding of business principles and advanced analytical techniques. This powerful combination of strong business acumen from my MBA and deep analytical skills honed through data-focused specializations positions me as an ideal candidate to drive data-informed strategies and solve complex business challenges effectively.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="bg-[var(--card-bg)] p-6 rounded-lg shadow-lg hover-card overflow-hidden"
+              >
+                <div
+                  class="absolute top-0 right-0 w-32 h-32 transform translate-x-16 -translate-y-16"
+                >
+                  <div
+                    class="absolute inset-0 bg-gradient-to-br from-primary to-secondary opacity-10 rounded-full"
+                  ></div>
+                </div>
+                <div class="flex items-center mb-6 relative">
+                  <div
+                    class="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white shadow-lg"
+                  >
+                    <i class="ri-graduation-cap-fill text-2xl"></i>
+                  </div>
+                  <div class="ml-4">
+                    <h3 class="text-xl font-semibold">
+                      Bachelor of Business Administration
+                    </h3>
+                    <p class="text-[var(--text-secondary)]">
+                      Lachoo Institute of Technology • 2019 - 2023
+                    </p>
+                  </div>
+                </div>
+
+                <div class="space-y-6">
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="px-4 py-1 bg-blue-50 rounded-full text-primary text-sm font-medium"
+                    >
+                      Major: Business Management
+                    </div>
+                    <div
+                      class="px-4 py-1 bg-green-50 rounded-full text-green-600 text-sm font-medium"
+                    >
+                      GPA: 3.92/4.0
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 gap-4">
+                    <div
+                      class="p-4 bg-gray-100 rounded-lg border border-gray-100 education-card-inner-box"
+                    >
+                      <h4 class="font-medium text-primary mb-3 education-card-inner-box-title">
+                        Academic Highlights
+                      </h4>
+                      <div class="grid grid-cols-2 gap-3">
+                        <div class="flex items-center gap-2">
+                          <i class="ri-lightbulb-line text-blue-500"></i>
+                          <span class="text-sm">Strategic Management</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <i class="ri-calculator-line text-purple-500"></i>
+                          <span class="text-sm">Financial Accounting</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <i
+                            class="ri-group-line text-green-500"
+                          ></i>
+                          <span class="text-sm">Organizational Behavior</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <i class="ri-presentation-line text-orange-500"></i>
+                          <span class="text-sm">Marketing Principles</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      class="p-4 bg-gray-100 rounded-lg border border-gray-100 education-card-inner-box"
+                    >
+                      <h4 class="font-medium text-primary mb-3 education-card-inner-box-title">
+                        Summary
+                      </h4>
+                      <div class="space-y-2">
+                        <p class="text-sm text-white-600">
+                          My Bachelor of Business Administration degree, with a focus on core business principles such as Strategic Management and Financial Accounting, provided me with a foundational understanding of the business world.  Through rigorous coursework and practical application of concepts like Organizational Behavior and Marketing Principles, I developed a well-rounded business acumen. This solid base in business management, complemented by my high academic performance, positions me as a strong candidate ready to contribute effectively to any business-oriented role.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+
+
+
+
+
+
+
+              <!-- Certification Card and Achievement Card here -->
+
+
+              <div class="bg-[var(--card-bg)] p-6 rounded-lg shadow-lg hover-card certification-card">
+
+                
+                <!-- Certification Card Container -->
+
+
+                <div class="flex items-center mb-6">
+                  <div class="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white shadow-lg">
+                    <i class="ri-award-fill text-2xl"></i>
+                  </div>
+                  <div class="ml-4">
+                    <h3 class="text-xl font-semibold">Professional Certifications</h3>
+                    <p class="text-[var(--text-secondary)]">Industry Recognition</p>
+                  </div>
+                </div>
+                <div class="space-y-6">
+                  <!-- Google Data Analytics Professional Certificate -->
+                  <div class="relative group certification-card-inner-box">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                    <div class="relative flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-800 rounded-lg border-l-4 border-blue-600 dark:border-blue-400 hover:shadow-md transition-all duration-300 text-[var(--text-primary)]">
+                      <div class="w-12 h-12 bg-white dark:bg-blue-900 rounded-lg flex items-center justify-center shadow-sm">
+                        <i class="ri-google-fill text-2xl text-blue-600 dark:text-blue-300"></i>
+                      </div>
+                      <div class="flex-grow">
+                        <h4 class="font-medium flex items-center gap-2 certification-card-inner-text">
+                          Google Data Analytics Professional Certificate
+                          <span class="px-2 py-1 bg-blue-100 dark:bg-blue-700 text-blue-700 dark:text-blue-100 text-xs rounded-full align-middle">Top 5%</span>
+                        </h4>
+                        <p class="text-sm text-[var(--text-secondary)] certification-card-inner-text">Completed Feb 2024</p>
+                        <div class="mt-2 flex items-center gap-4">
+                          <span class="text-xs bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-100 px-2 py-1 rounded certification-card-inner-text">Data Analysis</span>
+                          <span class="text-xs bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-100 px-2 py-1 rounded certification-card-inner-text">SQL</span>
+                          <span class="text-xs bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-100 px-2 py-1 rounded certification-card-inner-text">R Programming</span>
+                        </div>
+                      </div>
+                      <button class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-2 hover:bg-blue-100 dark:hover:bg-blue-700 rounded-full">
+                        <i class="ri-external-link-line text-blue-600 dark:text-blue-300"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <!-- IBM Data Science Professional Certificate -->
+                  <div class="relative group certification-card-inner-box">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                    <div class="relative flex items-center gap-4 p-4 bg-purple-50 dark:bg-purple-800 rounded-lg border-l-4 border-purple-600 dark:border-purple-400 hover:shadow-md transition-all duration-300 text-[var(--text-primary)]">
+                      <div class="w-12 h-12 bg-white dark:bg-purple-900 rounded-lg flex items-center justify-center shadow-sm">
+                        <i class="ri-database-2-fill text-2xl text-purple-600 dark:text-purple-300"></i>
+                      </div>
+                      <div class="flex-grow">
+                        <h4 class="font-medium flex items-center gap-2 certification-card-inner-text">IBM Data Science Professional Certificate</h4>
+                        <p class="text-sm text-[var(--text-secondary)] certification-card-inner-text">Completed Jan 2024</p>
+                        <div class="mt-2 flex items-center gap-4">
+                          <span class="text-xs bg-purple-100 dark:bg-purple-700 text-purple-800 dark:text-purple-100 px-2 py-1 rounded certification-card-inner-text">Python</span>
+                          <span class="text-xs bg-purple-100 dark:bg-purple-700 text-purple-800 dark:text-purple-100 px-2 py-1 rounded certification-card-inner-text">Machine Learning</span>
+                          <span class="text-xs bg-purple-100 dark:bg-purple-700 text-purple-800 dark:text-purple-100 px-2 py-1 rounded certification-card-inner-text">Deep Learning</span>
+                        </div>
+                      </div>
+                      <button class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-2 hover:bg-purple-100 dark:hover:bg-purple-700 rounded-full">
+                        <i class="ri-external-link-line text-purple-600 dark:text-purple-300"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <!-- Microsoft Azure Data Scientist Associate -->
+                  <div class="relative group certification-card-inner-box">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-cyan-500 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                    <div class="relative flex items-center gap-4 p-4 bg-green-50 dark:bg-green-800 rounded-lg border-l-4 border-green-600 dark:border-green-400 hover:shadow-md transition-all duration-300 text-[var(--text-primary)]">
+                      <div class="w-12 h-12 bg-white dark:bg-green-900 rounded-lg flex items-center justify-center shadow-sm">
+                        <i class="ri-microsoft-fill text-2xl text-green-600 dark:text-green-300"></i>
+                      </div>
+                      <div class="flex-grow">
+                        <h4 class="font-medium flex items-center gap-2 certification-card-inner-text">
+                          Microsoft Azure Data Scientist Associate
+                          <span class="px-2 py-1 bg-green-100 dark:bg-green-700 text-green-700 dark:text-green-100 text-xs rounded-full align-middle">Score 890</span>
+                        </h4>
+                        <p class="text-sm text-[var(--text-secondary)] certification-card-inner-text">Completed Dec 2024</p>
+                        <div class="mt-2 flex items-center gap-4">
+                          <span class="text-xs bg-green-100 dark:bg-green-700 text-green-800 dark:text-green-100 px-2 py-1 rounded certification-card-inner-text">Azure ML</span>
+                          <span class="text-xs bg-green-100 dark:bg-green-700 text-green-800 dark:text-green-100 px-2 py-1 rounded certification-card-inner-text">MLOps</span>
+                          <span class="text-xs bg-green-100 dark:bg-green-700 text-green-800 dark:text-green-100 px-2 py-1 rounded certification-card-inner-text">Data Engineering</span>
+                        </div>
+                      </div>
+                      <button class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-2 hover:bg-green-100 dark:hover:bg-green-700 rounded-full">
+                        <i class="ri-external-link-line text-green-600 dark:text-green-300"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <!-- AWS Certified Data Analytics - Specialty -->
+                  <div class="relative group certification-card-inner-box">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-yellow-500 to-cyan-500 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                    <div class="relative flex items-center gap-4 p-4 bg-yellow-50 dark:bg-yellow-800 rounded-lg border-l-4 border-yellow-600 dark:border-yellow-400 hover:shadow-md transition-all duration-300 text-[var(--text-primary)]">
+                      <div class="w-12 h-12 bg-white dark:bg-yellow-900 rounded-lg flex items-center justify-center shadow-sm">
+                        <i class="ri-amazon-fill text-2xl text-yellow-600 dark:text-yellow-300"></i>
+                      </div>
+                      <div class="flex-grow">
+                        <h4 class="font-medium flex items-center gap-2 certification-card-inner-text">
+                          AWS Certified Data Analytics - Specialty
+                          <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-700 text-yellow-700 dark:text-yellow-100 text-xs rounded-full align-middle">Top Scorer</span>
+                        </h4>
+                        <p class="text-sm text-[var(--text-secondary)] certification-card-inner-text">Completed Nov 2024</p>
+                        <div class="mt-2 flex items-center gap-4">
+                          <span class="text-xs bg-yellow-100 dark:bg-yellow-700 text-yellow-800 dark:text-yellow-100 px-2 py-1 rounded certification-card-inner-text">AWS Services</span>
+                          <span class="text-xs bg-yellow-100 dark:bg-yellow-700 text-yellow-800 dark:text-yellow-100 px-2 py-1 rounded certification-card-inner-text">Big Data</span>
+                          <span class="text-xs bg-yellow-100 dark:bg-yellow-700 text-yellow-800 dark:text-yellow-100 px-2 py-1 rounded certification-card-inner-text">Analytics</span>
+                        </div>
+                      </div>
+                      <button class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-2 hover:bg-yellow-100 dark:hover:bg-yellow-700 rounded-full">
+                        <i class="ri-external-link-line text-yellow-600 dark:text-yellow-300"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <!-- Tableau Desktop Specialist -->
+                  <div class="relative group certification-card-inner-box">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-cyan-500 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                    <div class="relative flex items-center gap-4 p-4 bg-red-50 dark:bg-red-800 rounded-lg border-l-4 border-red-600 dark:border-red-400 hover:shadow-md transition-all duration-300 text-[var(--text-primary)]">
+                      <div class="w-12 h-12 bg-white dark:bg-red-900 rounded-lg flex items-center justify-center shadow-sm">
+                        <i class="ri-line-chart-fill text-2xl text-red-600 dark:text-red-300"></i>
+                      </div>
+                      <div class="flex-grow">
+                        <h4 class="font-medium flex items-center gap-2 certification-card-inner-text">
+                          Tableau Desktop Specialist
+                          <span class="px-2 py-1 bg-red-100 dark:bg-red-700 text-red-700 dark:text-red-100 text-xs rounded-full align-middle">Expert Level</span>
+                        </h4>
+                        <p class="text-sm text-[var(--text-secondary)] certification-card-inner-text">Completed Oct 2023</p>
+                        <div class="mt-2 flex items-center gap-4">
+                          <span class="text-xs bg-red-100 dark:bg-red-700 text-red-800 dark:text-red-100 px-2 py-1 rounded certification-card-inner-text">Data Visualization</span>
+                          <span class="text-xs bg-red-100 dark:bg-red-700 text-red-800 dark:text-red-100 px-2 py-1 rounded certification-card-inner-text">Dashboard Design</span>
+                          <span class="text-xs bg-red-100 dark:bg-red-700 text-red-800 dark:text-red-100 px-2 py-1 rounded certification-card-inner-text">Analytics</span>
+                        </div>
+                      </div>
+                      <button class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-2 hover:bg-red-100 dark:hover:bg-red-700 rounded-full">
+                        <i class="ri-external-link-line text-red-600 dark:text-red-300"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <!-- Certification Progress Summary -->
+                  <div class="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-800 dark:to-purple-800 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white dark:bg-blue-900 rounded-full flex items-center justify-center shadow-sm">
+                          <i class="ri-medal-line text-xl text-primary"></i>
+                        </div>
+                        <div>
+                          <h4 class="font-medium text-[var(--text-primary)]">Certification Progress</h4>
+                          <p class="text-sm text-[var(--text-secondary)]">Currently pursuing</p>
+                        </div>
+                      </div>
+                      <span class="text-sm font-medium text-primary">2 in progress</span>
+                    </div>
+                    <div class="mt-4 space-y-3">
+                      <div>
+                        <div>
+                          <div class="flex justify-between text-sm mb-1">
+                            <span class="text-[var(--text-secondary)]">TensorFlow Developer Certificate</span>
+                            <span class="text-primary">75% completed</span>
+                          </div>
+                          <div class="h-2 bg-blue-100 dark:bg-blue-700 rounded-full">
+                            <div class="h-2 bg-primary rounded-full" style="width: 75%"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <div>
+                          <div class="flex justify-between text-sm mb-1">
+                            <span class="text-[var(--text-secondary)]">Databricks Certified Associate</span>
+                            <span class="text-primary">40% completed</span>
+                          </div>
+                          <div class="h-2 bg-blue-100 dark:bg-blue-700 rounded-full">
+                            <div class="h-2 bg-primary rounded-full" style="width: 40%"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+      
+      <!-- ========================= End Certification Card ========================= -->
+
+      
+      
+      <!-- ========================= Achievement Card: Achievements & Recognition ========================= -->
+      
+      
+      
+      <div class="bg-[var(--card-bg)] p-6 rounded-lg shadow-lg hover-card">
+        <!-- Achievement Card Container -->
+        <div class="flex items-center mb-6">
+          <div class="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white shadow-lg">
+            <i class="ri-trophy-fill text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-xl font-semibold">Achievements & Recognition</h3>
+            <p class="text-[var(--text-secondary)]">Highlights of Skills and Accomplishments</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-4">
+          <!-- Academic Performance -->
+          <div class="relative group">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+            <div class="relative p-4 bg-white dark:bg-gray-800 rounded-lg text-gray-800 dark:text-gray-100">
+              <h4 class="text-lg font-semibold text-primary dark:text-primary mb-3">Academic Performance</h4>
+              <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                  <i class="ri-award-fill text-2xl text-amber-600 dark:text-amber-400"></i>
+                  <div>
+                    <h5 class="font-medium">Consistent High Grades</h5>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Achieved Dean's List for multiple semesters</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <i class="ri-bookmark-fill text-2xl text-blue-600 dark:text-blue-300"></i>
+                  <div>
+                    <h5 class="font-medium">Relevant Coursework Completion</h5>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Successfully completed advanced Data Science courses</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Project Achievements -->
+          <div class="relative group">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-green-500 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+            <div class="relative p-4 bg-white dark:bg-gray-800 rounded-lg text-gray-800 dark:text-gray-100">
+              <h4 class="text-lg font-semibold text-emerald-600 dark:text-emerald-400 mb-3">Project Achievements</h4>
+              <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                  <i class="ri-briefcase-fill text-2xl text-orange-500 dark:text-orange-300"></i>
+                  <div>
+                    <h5 class="font-medium">Successful Data Analysis Projects</h5>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Consistently delivered insightful project outcomes</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <i class="ri-computer-line text-2xl text-indigo-600 dark:text-indigo-300"></i>
+                  <div>
+                    <h5 class="font-medium">Technical Project Recognition</h5>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Projects recognized for innovative technical solutions</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Skills & Soft Skills -->
+          <div class="relative group">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+            <div class="relative p-4 bg-white dark:bg-gray-800 rounded-lg text-gray-800 dark:text-gray-100">
+              <h4 class="text-lg font-semibold text-purple-600 dark:text-purple-400 mb-3">Skills & Soft Skills</h4>
+              <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                  <i class="ri-lightbulb-fill text-2xl text-rose-600 dark:text-rose-300"></i>
+                  <div>
+                    <h5 class="font-medium">Problem-Solving Abilities</h5>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Recognized for effective analytical thinking</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <i class="ri-group-line text-2xl text-yellow-600 dark:text-yellow-300"></i>
+                  <div>
+                    <h5 class="font-medium">Teamwork & Collaboration</h5>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Positive contributions to team projects and collaborations</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Continuous Learning -->
+          <div class="relative group">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+            <div class="relative p-4 bg-white dark:bg-gray-800 rounded-lg text-gray-800 dark:text-gray-100">
+              <h4 class="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-3">Continuous Learning</h4>
+              <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                  <i class="ri-line-chart-fill text-2xl text-cyan-600 dark:text-cyan-300"></i>
+                  <div>
+                    <h5 class="font-medium">Commitment to Skill Development</h5>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Proactive in learning new data science techniques</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <i class="ri-global-line text-2xl text-emerald-600 dark:text-emerald-300"></i>
+                  <div>
+                    <h5 class="font-medium">Industry Awareness</h5>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Staying updated with data science trends and technologies</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ========================= End Achievement Card ========================= -->
+
+    </div>
+  </div>
+</section>
+
+
+
+        
+<section
+id="contact"
+class="py-24 bg-gradient-to-b from-[var(--hover-bg)] to-[var(--bg-primary)] dark:from-[var(--dark-hover-bg)] dark:to-[var(--dark-bg-primary)] theme-transition"
+>
+<!-- Contact Section -->
+<!-- - `id="contact"`: Anchor ID for navigation to this section. -->
+<!-- - `py-24`: Vertical padding (top and bottom) of 24 units. -->
+<!-- - `bg-gradient-to-b from-[var(--hover-bg)] to-[var(--bg-primary)]`: Background gradient from hover background color to primary background color, creating a smooth transition from the skills section. -->
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+  <!-- Container for contact section content, limiting width and adding responsive padding -->
+  <!-- - `max-w-3xl`: Maximum width of the container for larger screens, narrower than other sections to focus the contact form. -->
+  <!-- - `mx-auto`: Centers the container horizontally. -->
+  <!-- - `px-4 sm:px-6 lg:px-8`: Responsive horizontal padding for different screen sizes. -->
+  <h2 class="text-3xl font-bold mb-12 text-center text-gray-800 dark:text-gray-100">Get in Touch</h2>
+  <!-- Section heading - "Get in Touch" -->
+  <!-- - `text-3xl`: Large text size for the heading. -->
+  <!-- - `font-bold`: Bold font weight for the heading. -->
+  <!-- - `mb-12`: Bottom margin of 12 units to separate from the contact form. -->
+  <!-- - `text-center`: Centers the heading text horizontally. -->
+
+
+<!-- -------------------------------------------------------------------------- -->
+<!--  Intriguing Contact Card Area - Dark Mode Adaptable                       -->
+<!-- -------------------------------------------------------------------------- -->
+<div class="contact-container">
+  <div
+    class="relative space-y-6 p-8 bg-[var(--card-bg)] dark:bg-[var(--dark-bg-primary)] rounded-2xl shadow-xl border border-[var(--border-color)] dark:border-[var(--dark-border-color)] overflow-hidden hover-card theme-transition"
+  >
+    <!-- Subtle Background Pattern (Optional - Add to your CSS if you want a pattern) -->
+    <!-- <div class="absolute inset-0 bg-[url('/path-to-subtle-pattern.svg')] opacity-5 pointer-events-none"></div> -->
+
+    <!-- Circular Highlight behind Logo -->
+    <div class="absolute top-0 left-0 -translate-x-1/4 -translate-y-1/4 w-48 h-48 bg-primary dark:bg-primary opacity-10 rounded-full blur-xl"></div>
+    <div class="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 w-48 h-48 bg-secondary dark:bg-secondary opacity-10 rounded-full blur-xl"></div>
+
+
+    <!-- Brand, Summary, and Expertise (Column 3 from Footer) -->
+    <div class="flex flex-col gap-6 items-center relative z-10"> <!-- Added relative z-10 for content to be above bg effects -->
+      <!-- Brand (Name, Logo, Role) -->
+      <div class="flex items-center gap-4">
+        <div
+          class="w-14 h-14 bg-gradient-to-br from-primary to-secondary dark:from-primary dark:to-secondary rounded-xl flex items-center justify-center text-white shadow-md"
+        >
+          <span class="text-2xl font-['Pacifico']">TB</span>
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold text-[var(--text-primary)] dark:text-gray-100">
+            Tohid Bagani
+          </h3>
+          <p class="text-sm text-[var(--text-secondary)] dark:text-gray-400">Data Analyst</p>
+        </div>
+      </div>
+
+      <!-- Summary with a Quote Icon -->
+      <div class="text-center">
+        <i class="ri-double-quotes-l text-gray-400 dark:text-gray-600 text-xl mb-1 block"></i>
+        <p class="text-[var(--text-secondary)] dark:text-gray-300 leading-relaxed text-sm italic">
+          "Data-driven solutions for a smarter future. Transforming data into
+          actionable strategies and impactful results."
+        </p>
+      </div>
+
+      <!-- Expertise Heading with a Line Separator -->
+      <div class="w-full">
+        <div class="relative">
+          <div class="absolute inset-0 flex items-center" aria-hidden="true">
+            <div class="w-full border-t border-gray-300 dark:border-gray-700"></div>
+          </div>
+          <div class="relative flex justify-center">
+            <span class="bg-[var(--card-bg)] dark:bg-[var(--dark-bg-primary)] px-3 text-lg font-semibold text-[var(--text-primary)] dark:text-gray-100">
+              Expertise
+            </span>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="flex flex-wrap justify-center gap-2">
+        <span
+          class="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 rounded-full text-xs font-medium"
+          >Data Analysis</span
+        >
+        <span
+          class="inline-block px-3 py-1 bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 rounded-full text-xs font-medium"
+          >Machine Learning</span
+        >
+        <span
+          class="inline-block px-3 py-1 bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100 rounded-full text-xs font-medium"
+          >Data Visualization</span
+        >
+        <span
+          class="inline-block px-3 py-1 bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-100 rounded-full text-xs font-medium"
+          >Python</span
+        >
+        <span
+          class="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-100 rounded-full text-xs font-medium"
+          >SQL</span
+        >
+      </div>
+      <div class="mt-6">
+        <a
+          href="mailto:Tohidbagani@gmail.com"
+          class="inline-flex items-center justify-center bg-primary dark:bg-dark-primary text-white dark:text-[var(--text-primary)] px-6 py-3 rounded-button hover:bg-blue-600 dark:hover:bg-blue-600 transition-colors text-lg font-medium"
+        >
+          <i class="ri-mail-line mr-2"></i> <!-- Email Icon -->
+          Get In Touch
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- -------------------------------------------------------------------------- -->
+  <!--  End Intriguing Contact Card Area - Dark Mode Adaptable                     -->
+  <!-- -------------------------------------------------------------------------- -->
+
+</div>
+</section>
+
+      <main>
+        <!-- Footer Removed -->
+      </main>
+
+
+
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          // Project Filters (unchanged)
+          const projectFilters = document.getElementById("projectFilters");
+          const projectsGrid = document.getElementById("projectsGrid");
+          const projectCards = document.querySelectorAll(".project-card");
+      
+          function filterProjects(filter) {
+              projectCards.forEach((card) => {
+                  if (filter === "all") {
+                      card.classList.remove("hidden");
+                  } else {
+                      const categories = card.dataset.categories.split(",");
+                      categories.includes(filter)
+                          ? card.classList.remove("hidden")
+                          : card.classList.add("hidden");
+                  }
+              });
+          }
+      
+          projectFilters.addEventListener("click", (e) => {
+              if (e.target.tagName === "BUTTON") {
+                  const filter = e.target.dataset.filter;
+                  projectFilters.querySelectorAll("button").forEach((btn) => {
+                      btn === e.target
+                          ? btn.classList.add("bg-primary", "text-blue-800")
+                          : btn.classList.remove("bg-primary", "text-blue-800");
+                      btn.classList.toggle("text-[var(--text-primary)]", btn !== e.target);
+                  });
+                  filterProjects(filter);
+              }
+          });
+      
+          // Theme Toggle (unchanged)
+          const themeToggle = document.getElementById("themeToggle");
+          const body = document.body;
+          const icon = themeToggle.querySelector("i");
+      
+          function setTheme(isDark) {
+              body.className = isDark ? "theme-dark dark" : "theme-light";
+              icon.className = isDark ? "ri-moon-line" : "ri-sun-line";
+          }
+      
+          const savedTheme = localStorage.getItem("theme");
+          setTheme(savedTheme === "dark");
+      
+          themeToggle.addEventListener("click", () => {
+              const isDark = body.classList.contains("theme-light");
+              setTheme(isDark);
+              localStorage.setItem("theme", isDark ? "dark" : "light");
+          });
+      
+              // Enhanced Smooth Scroll (Updated for Real Smoothness)
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+
+            if (!targetElement) return;
+
+            const startPosition = window.pageYOffset;
+            const targetPosition = targetElement.offsetTop;
+            const distance = targetPosition - startPosition;
+            const duration = 1500; // Increased duration for smoother scroll (milliseconds)
+            let startTime = null;
+
+            function animation(currentTime) {
+                if (startTime === null) startTime = currentTime;
+                const timeElapsed = currentTime - startTime;
+                const run = easeInOutSine(timeElapsed, startPosition, distance, duration); // Using easeInOutSine
+                window.scrollTo(0, run);
+                if (timeElapsed < duration) requestAnimationFrame(animation);
+            }
+
+            // Easing function - easeInOutSine (smoother and gentler)
+            function easeInOutSine(t, b, c, d) {
+                return -c/2 * (Math.cos(Math.PI*t/d) - 1) + b;
+            }
+
+            requestAnimationFrame(animation);
+        });
+    });
+});
+      </script>
+  </body>
+</html>

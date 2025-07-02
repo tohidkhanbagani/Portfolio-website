@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Recommendation Model Tester</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        html {
+            scroll-behavior: smooth; /* Ensures smooth scrolling for anchor links */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f9fafb; /* bg-gray-50 from e-commerce site */
+            min-height: 100vh;
+        }
+
+        /* Custom animations for enhanced UI/UX - copied from e-commerce site */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bounceIn {
+            0%, 20%, 40%, 60%, 80%, 100% {
+                transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+            }
+            0% { opacity: 0; transform: scale3d(.3, .3, .3); }
+            20% { transform: scale3d(1.1, 1.1, 1.1); }
+            40% { transform: scale3d(.9, .9, .9); }
+            60% { opacity: 1; transform: scale3d(1.03, 1.03, 1.03); }
+            80% { transform: scale3d(.97, .97, .97); }
+            100% { opacity: 1; transform: scale3d(1, 1, 1); }
+        }
+        .animate-fade-in-down { animation: fadeInDown 1s ease-out forwards; }
+        .animate-fade-in-up { animation: fadeInUp 1s ease-out forwards; }
+        .animate-bounce-in { animation: bounceIn 1s ease-out forwards; }
+
+        /* New animation for product cards appearing */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-slide-in-up {
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+
+
+        /* Custom styles for tag input */
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            border: 1px solid #d1d5db; /* border-gray-300 from e-commerce site */
+            border-radius: 0.5rem; /* rounded-lg */
+            background-color: #ffffff; /* bg-white */
+            min-height: 44px; /* Ensure consistent height */
+            box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* subtle inner shadow */
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .tag-input-container:focus-within {
+            border-color: #6366f1; /* indigo-500 from e-commerce site */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3); /* Focus ring effect */
+        }
+        .tag {
+            display: flex;
+            align-items: center;
+            background-color: #e0e7ff; /* bg-indigo-100 */
+            color: #4338ca; /* text-indigo-800 */
+            padding: 6px 10px;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .tag:hover {
+            background-color: #c7d2fe; /* indigo-200 */
+        }
+        .tag-remove {
+            margin-left: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #4f46e5; /* indigo-600 */
+            transition: color 0.2s ease-in-out;
+        }
+        .tag-remove:hover {
+            color: #ef4444; /* red-500 */
+        }
+        .tag-input {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            padding: 0;
+            min-width: 100px;
+            background-color: transparent;
+        }
+        /* Loading spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-left-color: #ffffff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Button styling - aligned with e-commerce site's indigo buttons */
+        .button-primary {
+            background-color: #4f46e5; /* indigo-600 */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+        .button-primary:hover {
+            background-color: #4338ca; /* indigo-700 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.08);
+        }
+        .button-primary:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .button-secondary {
+            border: 1px solid #d1d5db; /* gray-300 */
+            background-color: #ffffff; /* bg-white */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            color: #4b5563; /* gray-700 */
+        }
+        .button-secondary:hover {
+            background-color: #f3f4f6; /* gray-100 */
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+        }
+        .button-secondary:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        /* Product card styling - aligned with e-commerce site's product/category cards */
+        .product-card {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb; /* gray-200 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            overflow: hidden;
+            flex-shrink: 0;
+            width: 250px; /* Fixed width for horizontal scroll */
+            position: relative; /* Added for z-index to work */
+            display: flex; /* Added for vertical alignment of content */
+            flex-direction: column; /* Arrange items in a column */
+            transform: translateZ(0); /* Added for hardware acceleration to fix hover clipping */
+        }
+        .product-card:hover {
+            transform: translateY(-8px) scale(1.03); /* More pronounced lift and scale */
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1); /* Stronger shadow */
+            z-index: 10; /* Added to bring it above siblings on hover */
+        }
+        /* New: Image placeholder div styling */
+        .product-image-placeholder {
+            width: 100%;
+            height: 144px; /* h-36 equivalent */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 700; /* font-bold */
+            border-radius: 0.5rem 0.5rem 0 0; /* Rounded top corners to match card */
+            text-align: center;
+            padding: 1rem; /* Add some padding */
+            line-height: 1.2; /* Adjust line height for multi-word titles */
+            overflow: hidden; /* Ensure text doesn't overflow */
+        }
+        .product-image-text {
+            /* No specific styles needed here, inherited from parent */
+        }
+
+        .product-card .card-content {
+            padding: 1rem; /* p-4 equivalent */
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* Allows content to grow and push button down */
+        }
+
+        .product-card h3 {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 0.25rem; /* mb-1 */
+            color: #1f2937; /* gray-900 */
+        }
+        .product-card .product-price {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 700; /* font-bold */
+            margin-bottom: 0.5rem; /* mb-2 */
+            color: #4b5563; /* gray-700 */
+        }
+        .product-card .product-rating {
+            display: flex;
+            align-items: center;
+            color: #f59e0b; /* yellow-500 */
+            font-size: 0.875rem; /* text-sm */
+            margin-bottom: 0.75rem; /* mb-3 */
+        }
+        .product-card .add-to-cart-btn {
+            width: 100%;
+            background-color: #4f46e5; /* indigo-600 */
+            color: white;
+            padding-top: 0.5rem; /* py-2 */
+            padding-bottom: 0.5rem; /* py-2 */
+            border-radius: 0.375rem; /* rounded-md */
+            transition: background-color 0.2s ease-in-out;
+            margin-top: auto; /* Pushes the button to the bottom */
+        }
+        .product-card .add-to-cart-btn:hover {
+            background-color: #4338ca; /* indigo-700 */
+        }
+
+
+        /* Message area styling - aligned with e-commerce site's newsletter messages */
+        .message-box {
+            padding: 10px 15px;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(-10px);
+            animation: fadeSlideIn 0.5s forwards;
+            display: flex; /* Added for icon alignment */
+            align-items: center; /* Added for icon alignment */
+            justify-content: center; /* Center content horizontally */
+        }
+        .message-box.success {
+            background-color: #d1fae5; /* green-100 */
+            color: #065f46; /* green-800 */
+            border: 1px solid #34d399; /* green-400 */
+        }
+        .message-box.error {
+            background-color: #fee2e2; /* red-100 */
+            color: #991b1b; /* red-800 */
+            border: 1px solid #f87171; /* red-400 */
+        }
+        .message-box.info {
+            background-color: #e0f2fe; /* blue-100 */
+            color: #1e40af; /* blue-800 */
+            border: 1px solid #60a5fa; /* blue-400 */
+        }
+        .message-box svg {
+            margin-right: 0.5rem; /* Space between icon and text */
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Arrow Button Styling - aligned with main theme colors */
+        .scroll-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.9); /* Slightly more opaque */
+            border-radius: 9999px;
+            padding: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e5e7eb; /* gray-200 */
+        }
+        .scroll-arrow:hover {
+            background-color: rgba(255, 255, 255, 1);
+            transform: translateY(-50%) scale(1.08); /* Slightly larger scale on hover */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .scroll-arrow svg {
+            width: 24px;
+            height: 24px;
+            color: #4f46e5; /* indigo-600 */
+        }
+        .scroll-arrow.left {
+            left: -20px;
+        }
+        .scroll-arrow.right {
+            right: -20px;
+        }
+        @media (max-width: 640px) {
+            .scroll-arrow {
+                display: none;
+            }
+        }
+
+        /* Hide scrollbar for seamless scrolling */
+        .recommended-products-grid-container::-webkit-scrollbar {
+            display: none; /* For Chrome, Safari, and Opera */
+        }
+        .recommended-products-grid-container {
+            -ms-overflow-style: none;  /* For Internet Explorer and Edge */
+            scrollbar-width: none;  /* For Firefox */
+        }
+
+        /* Scroll to Top Button */
+        .scroll-to-top-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: #4f46e5; /* indigo-600 */
+            color: white;
+            padding: 0.75rem;
+            border-radius: 9999px; /* fully rounded */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            opacity: 0; /* Hidden by default */
+            pointer-events: none; /* Prevents interaction when hidden */
+            z-index: 1000; /* Ensure it's on top */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .scroll-to-top-btn.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        .scroll-to-top-btn:hover {
+            background-color: #4338ca; /* indigo-700 */
+            transform: translateY(-3px);
+        }
+        .scroll-to-top-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Tooltip styles */
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+        .tooltip-text {
+            visibility: hidden;
+            width: 220px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position above the element */
+            left: 50%;
+            margin-left: -110px; /* Center the tooltip */
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.875rem;
+        }
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%; /* At the bottom of the tooltip */
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Pulse animation for button */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+            }
+        }
+        .animate-pulse-on-hover:hover {
+            animation: pulse 1s infinite;
+        }
+
+        /* Custom Dropdown Styles */
+        .custom-dropdown-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .custom-dropdown-list {
+            position: absolute;
+            top: 100%; /* Position below the input */
+            left: 0;
+            right: 0;
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb; /* gray-200 */
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 50; /* Ensure it's above other content */
+            margin-top: 4px; /* Small gap below input */
+            display: none; /* Hidden by default */
+        }
+        .custom-dropdown-list.show {
+            display: block;
+        }
+        .custom-dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            color: #374151; /* gray-700 */
+            transition: background-color 0.2s ease-in-out;
+            font-size: 0.9375rem; /* ~15px */
+        }
+        .custom-dropdown-item:hover, .custom-dropdown-item.highlighted {
+            background-color: #e0e7ff; /* indigo-100 */
+            color: #4f46e5; /* indigo-600 */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8">
+    <section class="relative bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-20 lg:py-24 overflow-hidden rounded-b-lg shadow-lg mx-auto mb-12">
+        <div class="container mx-auto text-center px-4">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-down">
+                Personalized Product Recommendations
+            </h1>
+            <p class="text-lg sm:text-xl mb-8 opacity-90 animate-fade-in-up">
+                Test your recommendation model with ease and visualize results.
+            </p>
+            <a href="#input-section" class="inline-block bg-white text-indigo-700 hover:bg-gray-100 px-8 py-3 rounded-full text-lg font-semibold shadow-lg transition-all duration-300 transform hover:scale-105 animate-bounce-in smooth-scroll relative z-10 animate-pulse-on-hover">
+                Start Testing
+            </a>
+        </div>
+        <div class="absolute inset-0 z-0 opacity-20">
+            <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="20" cy="20" r="15" fill="url(#gradient1)" opacity="0.6">
+                    <animate attributeName="cx" values="20;80;20" dur="10s" repeatCount="indefinite" />
+                    <animate attributeName="cy" values="20;80;20" dur="12s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="80" cy="80" r="20" fill="url(#gradient2)" opacity="0.5">
+                    <animate attributeName="cx" values="80;20;80" dur="11s" repeatCount="indefinite" />
+                    <animate attributeName="cy" values="80;20;80" dur="13s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="50" cy="50" r="10" fill="url(#gradient3)" opacity="0.7">
+                    <animate attributeName="cx" values="50;10;90;50" dur="15s" repeatCount="indefinite" />
+                    <animate attributeName="cy" values="50;90;10;50" dur="14s" repeatCount="indefinite" />
+                </circle>
+                <defs>
+                    <radialGradient id="gradient1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(20 20) scale(30)">
+                        <stop stop-color="#fff" stop-opacity="0.8"/>
+                        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="gradient2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(80 80) scale(40)">
+                        <stop stop-color="#fff" stop-opacity="0.7"/>
+                        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="gradient3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50 50) scale(20)">
+                        <stop stop-color="#fff" stop-opacity="0.9"/>
+                        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+                    </radialGradient>
+                </defs>
+            </svg>
+        </div>
+    </section>
+
+    <div class="container mx-auto">
+        <div id="input-section" class="bg-white p-6 sm:p-8 rounded-xl shadow-md mb-10 max-w-4xl mx-auto">
+            <div class="space-y-7 mb-10">
+                <div>
+                    <label for="userId" class="block text-base font-semibold text-gray-700 mb-2">Enter User ID</label>
+                    <input type="text" id="userId" placeholder="e.g., user123, new_customer"
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-base transition duration-200 ease-in-out">
+                </div>
+
+                <div>
+                    <label for="purchasedProductsInput" class="block text-base font-semibold text-gray-700 mb-2 flex items-center">
+                        Previously Purchased Products (type and press Enter)
+                        <span class="tooltip-container ml-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-gray-400">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                            <span class="tooltip-text">Start typing to see product suggestions from the database.</span>
+                        </span>
+                    </label>
+                    <div id="purchasedProductsContainer" class="tag-input-container">
+                        <div class="custom-dropdown-wrapper">
+                            <input type="text" id="purchasedProductsInput" placeholder="Start typing a product..."
+                                   class="tag-input text-base">
+                            <div id="productSuggestionsList" class="custom-dropdown-list">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="purchaseCountsInput" class="block text-base font-semibold text-gray-700 mb-2">Purchase Counts (type a number and press Enter)</label>
+                    <div id="purchaseCountsContainer" class="tag-input-container">
+                        <input type="number" id="purchaseCountsInput" placeholder="e.g., 1, 5, 2" min="1"
+                               class="tag-input text-base">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center gap-5">
+                <button id="getRecommendationsBtn"
+                        class="button-primary flex items-center justify-center px-8 py-3 text-lg font-medium rounded-lg text-white focus:outline-none focus:ring-4 focus:ring-indigo-300">
+                    <span id="buttonText">Get Recommendations</span>
+                    <div id="loadingSpinner" class="spinner ml-3 hidden"></div>
+                </button>
+                <button id="clearInputsBtn"
+                        class="button-secondary px-8 py-3 text-lg font-medium rounded-lg focus:outline-none focus:ring-4 focus:ring-indigo-200">
+                    Clear Inputs
+                </button>
+            </div>
+        </div>
+
+        <div id="messageArea" class="text-center text-sm mb-8 min-h-[30px]"></div>
+
+        <div id="recommendationsSection" class="hidden relative">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">Recommended Products</h2>
+            <div id="recommendedProductsGrid" class="flex overflow-x-auto pt-4 pb-4 -mx-2 sm:-mx-4 lg:-mx-6 gap-6 px-2 sm:px-4 lg:px-6 scroll-smooth recommended-products-grid-container">
+                </div>
+
+            <button id="scrollLeftBtn" class="scroll-arrow left hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+            </button>
+
+            <button id="scrollRightBtn" class="scroll-arrow right hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <footer class="bg-gray-900 text-gray-300 py-8 px-4 mt-12">
+        <div class="container mx-auto text-center">
+            <h3 class="text-xl font-bold mb-2 text-white">Product Recommendation Tester</h3>
+            <p class="text-gray-400 text-sm">&copy; 2024 YourCompany. All rights reserved.</p>
+            <div class="flex justify-center space-x-4 mt-4">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Privacy Policy</a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <button id="scrollToTopBtn" class="scroll-to-top-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
+        </svg>
+    </button>
+
+    <script>
+        const userIdInput = document.getElementById('userId');
+        const purchasedProductsInput = document.getElementById('purchasedProductsInput');
+        const purchasedProductsContainer = document.getElementById('purchasedProductsContainer');
+        const productSuggestionsList = document.getElementById('productSuggestionsList'); // New: reference to custom dropdown list
+        const purchaseCountsInput = document.getElementById('purchaseCountsInput');
+        const purchaseCountsContainer = document.getElementById('purchaseCountsContainer');
+        const getRecommendationsBtn = document.getElementById('getRecommendationsBtn');
+        const clearInputsBtn = document.getElementById('clearInputsBtn');
+        const messageArea = document.getElementById('messageArea');
+        const recommendationsSection = document.getElementById('recommendationsSection');
+        const recommendedProductsGrid = document.getElementById('recommendedProductsGrid');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const buttonText = document.getElementById('buttonText');
+        const scrollLeftBtn = document.getElementById('scrollLeftBtn');
+        const scrollRightBtn = document.getElementById('scrollRightBtn');
+        const startTestingBtn = document.querySelector('.smooth-scroll');
+        const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+
+        let purchasedProducts = [];
+        let purchaseCounts = [];
+        let allProducts = []; // Stores all products for infinite scrolling
+        let allProductOptions = []; // Stores product names fetched from backend for suggestions
+        let highlightedSuggestionIndex = -1; // For keyboard navigation in suggestions
+
+        // --- Backend API URL ---
+        const BACKEND_URL = "http://127.0.0.1:8000"; // Adjust if your backend is on a different URL/port
+
+        // Fetch all product names on page load and populate allProductOptions
+        async function loadProductSuggestions() {
+            try {
+                const res = await fetch(`${BACKEND_URL}/products`);
+                if (!res.ok) {
+                    throw new Error(`Failed to fetch product list: ${res.statusText}`);
+                }
+                allProductOptions = await res.json(); // Assuming backend returns an array of product names
+            } catch (err) {
+                console.error("Error loading product suggestions:", err);
+                showMessage('Failed to load product suggestions. Please ensure the backend is running.', 'error');
+            }
+        }
+
+        /**
+         * Displays a message in the designated area with a specific styling and icon.
+         * @param {string} message - The text message to display.
+         * @param {'success'|'error'|'info'} type - The type of message for styling and icon.
+         */
+        function showMessage(message, type = 'info') {
+            messageArea.innerHTML = '';
+            const msgDiv = document.createElement('div');
+            let iconSvg = '';
+            if (type === 'success') {
+                iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
+            } else if (type === 'error') {
+                iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
+            } else { // info
+                iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
+            }
+
+            msgDiv.innerHTML = `${iconSvg}<span>${message}</span>`;
+            msgDiv.className = `message-box ${type}`;
+            messageArea.appendChild(msgDiv);
+
+            setTimeout(() => {
+                if (messageArea.contains(msgDiv)) {
+                    msgDiv.style.opacity = '0';
+                    msgDiv.style.transform = 'translateY(-10px)';
+                    msgDiv.addEventListener('transitionend', () => msgDiv.remove(), { once: true });
+                }
+            }, 5000);
+        }
+
+        function addProductTag(productName) {
+            const trimmedName = productName.trim();
+            if (trimmedName) { // Allow adding even if not in suggestions for now, validation happens on submit
+                purchasedProducts.push(trimmedName);
+                renderProductTags();
+                productSuggestionsList.classList.remove('show'); // Hide dropdown after adding
+                highlightedSuggestionIndex = -1; // Reset highlight
+            }
+            purchasedProductsInput.value = ''; // Clear input field after attempt
+        }
+
+        function removeProductTag(productName) {
+            // Find the index of the first occurrence and remove it
+            const index = purchasedProducts.indexOf(productName);
+            if (index > -1) {
+                purchasedProducts.splice(index, 1);
+            }
+            renderProductTags(); // Re-render to reflect the change
+        }
+
+        function renderProductTags() {
+            // Clear existing tags but keep the input field
+            const existingTags = purchasedProductsContainer.querySelectorAll('.tag');
+            existingTags.forEach(tag => tag.remove());
+
+            purchasedProducts.forEach((product, index) => {
+                const tagDiv = document.createElement('div');
+                tagDiv.className = 'tag';
+                tagDiv.innerHTML = `
+                    <span>${product}</span>
+                    <span class="tag-remove" data-product-index="${index}">&times;</span>
+                `;
+                // Use a dataset index to remove specific instances if duplicates exist
+                tagDiv.querySelector('.tag-remove').addEventListener('click', (e) => {
+                    const clickedIndex = parseInt(e.target.dataset.productIndex, 10);
+                    // Remove the item at the specific index
+                    purchasedProducts.splice(clickedIndex, 1);
+                    renderProductTags(); // Re-render to update indices and display
+                });
+                // Insert tag before the input field
+                purchasedProductsContainer.insertBefore(tagDiv, purchasedProductsInput.closest('.custom-dropdown-wrapper'));
+            });
+            purchasedProductsInput.value = '';
+        }
+
+        function addPurchaseCountTag(count) {
+            const trimmedCount = parseInt(count.trim(), 10);
+            if (!isNaN(trimmedCount) && trimmedCount > 0) {
+                purchaseCounts.push(trimmedCount);
+                renderPurchaseCounts();
+            } else if (isNaN(trimmedCount) || trimmedCount <= 0) {
+                showMessage('Please enter a valid positive number for purchase count.', 'error');
+            }
+            purchaseCountsInput.value = ''; // Clear input field after attempt
+        }
+
+        function removePurchaseCountTag(count) {
+            // Find the index of the first occurrence and remove it
+            const index = purchaseCounts.indexOf(count);
+            if (index > -1) {
+                purchaseCounts.splice(index, 1);
+            }
+            renderPurchaseCounts(); // Re-render to reflect the change
+        }
+
+        function renderPurchaseCounts() {
+            const existingTags = purchaseCountsContainer.querySelectorAll('.tag');
+            existingTags.forEach(tag => tag.remove());
+
+            purchaseCounts.forEach((count, index) => {
+                const tagDiv = document.createElement('div');
+                tagDiv.className = 'tag';
+                tagDiv.innerHTML = `
+                    <span>${count}</span>
+                    <span class="tag-remove" data-count-index="${index}">&times;</span>
+                `;
+                // Use a dataset index to remove specific instances if duplicates exist
+                tagDiv.querySelector('.tag-remove').addEventListener('click', (e) => {
+                    const clickedIndex = parseInt(e.target.dataset.countIndex, 10);
+                    // Remove the item at the specific index
+                    purchaseCounts.splice(clickedIndex, 1);
+                    renderPurchaseCounts(); // Re-render to update indices and display
+                });
+                purchaseCountsContainer.insertBefore(tagDiv, purchaseCountsInput);
+            });
+            purchaseCountsInput.value = '';
+        }
+
+        // --- Custom Dropdown Logic for Product Suggestions ---
+        function filterAndDisplaySuggestions() {
+            const query = purchasedProductsInput.value.toLowerCase();
+            productSuggestionsList.innerHTML = ''; // Clear previous suggestions
+            highlightedSuggestionIndex = -1; // Reset highlight
+
+            if (query.length === 0) {
+                productSuggestionsList.classList.remove('show');
+                return;
+            }
+
+            const filteredSuggestions = allProductOptions.filter(product =>
+                product.toLowerCase().includes(query)
+            );
+
+            if (filteredSuggestions.length > 0) {
+                filteredSuggestions.forEach((product, index) => {
+                    const item = document.createElement('div');
+                    item.classList.add('custom-dropdown-item');
+                    item.textContent = product;
+                    item.dataset.value = product; // Store the actual value
+                    item.addEventListener('click', () => {
+                        addProductTag(product);
+                        purchasedProductsInput.focus(); // Keep focus on input after selection
+                    });
+                    productSuggestionsList.appendChild(item);
+                });
+                productSuggestionsList.classList.add('show');
+            } else {
+                productSuggestionsList.classList.remove('show');
+            }
+        }
+
+        purchasedProductsInput.addEventListener('input', filterAndDisplaySuggestions);
+
+        purchasedProductsInput.addEventListener('focus', () => {
+            // Show suggestions if there's already text in the input
+            if (purchasedProductsInput.value.length > 0) {
+                filterAndDisplaySuggestions();
+            }
+        });
+
+        purchasedProductsInput.addEventListener('blur', (event) => {
+            // Hide dropdown after a short delay to allow click on items
+            setTimeout(() => {
+                if (!productSuggestionsList.contains(document.activeElement)) {
+                    productSuggestionsList.classList.remove('show');
+                }
+            }, 100);
+        });
+
+        purchasedProductsInput.addEventListener('keydown', (event) => {
+            const items = Array.from(productSuggestionsList.children);
+            if (items.length === 0) return;
+
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                highlightedSuggestionIndex = (highlightedSuggestionIndex + 1) % items.length;
+                updateHighlightedSuggestion(items);
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                highlightedSuggestionIndex = (highlightedSuggestionIndex - 1 + items.length) % items.length;
+                updateHighlightedSuggestion(items);
+            } else if (event.key === 'Enter') {
+                event.preventDefault();
+                if (highlightedSuggestionIndex > -1) {
+                    const selectedValue = items[highlightedSuggestionIndex].dataset.value;
+                    addProductTag(selectedValue);
+                } else {
+                    // If no suggestion is highlighted, but Enter is pressed, try to add current input as tag
+                    addProductTag(purchasedProductsInput.value);
+                }
+            } else if (event.key === 'Escape') {
+                productSuggestionsList.classList.remove('show');
+                highlightedSuggestionIndex = -1;
+            }
+        });
+
+        function updateHighlightedSuggestion(items) {
+            items.forEach((item, index) => {
+                if (index === highlightedSuggestionIndex) {
+                    item.classList.add('highlighted');
+                    item.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                } else {
+                    item.classList.remove('highlighted');
+                }
+            });
+        }
+
+        // --- Event Listeners for Tag Inputs (remaining) ---
+        // The click listener for removing tags is now inside renderProductTags for dynamic elements.
+        purchaseCountsInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addPurchaseCountTag(purchaseCountsInput.value);
+            }
+        });
+
+        // The click listener for removing purchase counts is now inside renderPurchaseCounts for dynamic elements.
+
+        // --- Backend Fetching Logic ---
+        async function fetchRecommendations(userId, purchasedItems, purchaseCounts) {
+            const payload = {
+                id: userId || "anonymous_user",
+                product: purchasedItems,
+                count: purchaseCounts // Correctly sending the actual purchase counts array
+            };
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/prediction`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Failed to fetch recommendations: ${errorData.detail || response.statusText}`);
+                }
+
+                const recommendedProducts = await response.json();
+                
+                // Convert plain product names into objects for rendering with dummy data
+                return recommendedProducts.map(product => ({
+                    name: product,
+                    description: product,
+                    price: (Math.random() * 100 + 10).toFixed(2),
+                    bgColor: "#E0F7FA",
+                    textColor: "#000000",
+                    rating: (Math.random() * (5 - 3) + 3).toFixed(1),
+                    reviews: Math.floor(Math.random() * 500) + 50
+                }));
+            } catch (error) {
+                console.error('Error in fetchRecommendations:', error);
+                throw error;
+            }
+        }
+
+        function updateScrollArrowsVisibility() {
+            if (recommendationsSection.classList.contains('hidden')) {
+                scrollLeftBtn.classList.add('hidden');
+                scrollRightBtn.classList.add('hidden');
+                return;
+            }
+
+            const hasOverflow = recommendedProductsGrid.scrollWidth > recommendedProductsGrid.clientWidth;
+
+            if (hasOverflow) {
+                if (recommendedProductsGrid.scrollLeft > 0) {
+                    scrollLeftBtn.classList.remove('hidden');
+                } else {
+                    scrollLeftBtn.classList.add('hidden');
+                }
+
+                if (recommendedProductsGrid.scrollLeft + recommendedProductsGrid.clientWidth < recommendedProductsGrid.scrollWidth - 1) {
+                    scrollRightBtn.classList.remove('hidden');
+                } else {
+                    scrollRightBtn.classList.add('hidden');
+                }
+            } else {
+                scrollLeftBtn.classList.add('hidden');
+                scrollRightBtn.classList.add('hidden');
+            }
+        }
+
+        function displayRecommendations(products) {
+            recommendedProductsGrid.innerHTML = '';
+
+            if (products.length === 0) {
+                 recommendedProductsGrid.innerHTML = '<p class="col-span-full text-center text-gray-500 text-lg py-4">No recommendations found for the given input. Try different items!</p>';
+                 recommendationsSection.classList.remove('hidden');
+                 updateScrollArrowsVisibility();
+                 return;
+            }
+
+            products.forEach((product, index) => {
+                const productCard = document.createElement('div');
+                productCard.classList.add('product-card', 'animate-slide-in-up');
+                productCard.style.animationDelay = `${index * 0.1}s`;
+                productCard.innerHTML = `
+                    <div class="product-image-placeholder" style="background-color: ${product.bgColor}; color: ${product.textColor};">
+                        <span class="product-image-text">${product.name.split(' ')[0]}</span>
+                    </div>
+                    <div class="card-content">
+                        <h3>${product.description}</h3>
+                        <p class="product-price">$${parseFloat(product.price).toFixed(2)}</p>
+                        <div class="product-rating">
+                            <span class="mr-1">${'★'.repeat(Math.round(product.rating))}${'☆'.repeat(5 - Math.round(product.rating))}</span> (${product.reviews} Reviews)
+                        </div>
+                        <button class="add-to-cart-btn">Add to Cart</button>
+                    </div>
+                `;
+                recommendedProductsGrid.appendChild(productCard);
+            });
+            recommendationsSection.classList.remove('hidden');
+            updateScrollArrowsVisibility();
+        }
+
+        getRecommendationsBtn.addEventListener('click', async () => {
+            const userId = userIdInput.value.trim();
+            const purchasedItems = [...purchasedProducts];
+            const currentPurchaseCounts = [...purchaseCounts];
+
+            // --- Validation Logic ---
+            if (!userId) {
+                showMessage('User ID is a mandatory field. Please fill it.', 'error');
+                return;
+            }
+
+            if (purchasedItems.length === 0) {
+                showMessage('Please add at least one previously purchased product.', 'error');
+                return;
+            }
+
+            if (currentPurchaseCounts.length === 0) {
+                showMessage('Please add at least one purchase count.', 'error');
+                return;
+            }
+
+            if (purchasedItems.length !== currentPurchaseCounts.length) {
+                showMessage('The number of purchased products must be equal to the number of purchase counts.', 'error');
+                return;
+            }
+            // --- End Validation Logic ---
+
+
+            buttonText.textContent = 'Fetching...';
+            loadingSpinner.classList.remove('hidden');
+            getRecommendationsBtn.disabled = true;
+            clearInputsBtn.disabled = true;
+            messageArea.innerHTML = '';
+            recommendedProductsGrid.innerHTML = '';
+            recommendationsSection.classList.add('hidden');
+            scrollLeftBtn.classList.add('hidden');
+            scrollRightBtn.classList.add('hidden');
+
+            try {
+                const recommendations = await fetchRecommendations(userId, purchasedItems, currentPurchaseCounts);
+                displayRecommendations(recommendations);
+                showMessage('Recommendations loaded successfully!', 'success');
+            } catch (error) {
+                console.error('Error fetching recommendations:', error);
+                showMessage(error.message || 'Error fetching recommendations. Please try again.', 'error');
+            } finally {
+                buttonText.textContent = 'Get Recommendations';
+                loadingSpinner.classList.add('hidden');
+                getRecommendationsBtn.disabled = false;
+                clearInputsBtn.disabled = false;
+            }
+        });
+
+        clearInputsBtn.addEventListener('click', () => {
+            userIdInput.value = '';
+            purchasedProducts = [];
+            purchaseCounts = [];
+            renderProductTags();
+            renderPurchaseCounts();
+            recommendedProductsGrid.innerHTML = '';
+            recommendationsSection.classList.add('hidden');
+            messageArea.innerHTML = '';
+            showMessage('All inputs and recommendations cleared.', 'info');
+            scrollLeftBtn.classList.add('hidden');
+            scrollRightBtn.classList.add('hidden');
+            allProducts = [];
+        });
+
+        scrollLeftBtn.addEventListener('click', () => {
+            recommendedProductsGrid.scrollBy({
+                left: -recommendedProductsGrid.clientWidth / 2,
+                behavior: 'smooth'
+            });
+        });
+
+        scrollRightBtn.addEventListener('click', () => {
+            recommendedProductsGrid.scrollBy({
+                left: recommendedProductsGrid.clientWidth / 2,
+                behavior: 'smooth'
+            });
+        });
+
+        recommendedProductsGrid.addEventListener('scroll', () => {
+            updateScrollArrowsVisibility();
+        });
+
+
+        // Ensure the "Start Testing" button is functional
+        startTestingBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = startTestingBtn.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop,
+                    behavior: 'smooth'
+                });
+            }
+        });
+
+        // Scroll to Top button logic
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) {
+                scrollToTopBtn.classList.add('show');
+            } else {
+                scrollToTopBtn.classList.remove('show');
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // --- Initial Setup ---
+        window.addEventListener("DOMContentLoaded", () => {
+            loadProductSuggestions(); // Load product suggestions from backend
+            renderProductTags(); // Initial render for product tags
+            renderPurchaseCounts(); // Initial render for purchase counts
+            updateScrollArrowsVisibility(); // Initial check for scroll arrows
+        });
+    </script>
+</body>
+</html>
